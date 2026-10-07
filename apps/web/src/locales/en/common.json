@@ -1,0 +1,429 @@
+{
+  "app": {
+    "name": "HANJING Order Manager",
+    "shortName": "HANJING"
+  },
+  "common": {
+    "loading": "Loading…",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "retry": "Try again",
+    "back": "Back",
+    "close": "Close",
+    "loadMore": "Load more",
+    "unknown": "Unknown",
+    "show": "Show",
+    "hide": "Hide",
+    "delete": "Delete"
+  },
+  "nav": {
+    "dashboard": "Home",
+    "security": "Security",
+    "settings": "Settings",
+    "audit": "Audit log",
+    "menu": "Menu",
+    "signOut": "Sign out",
+    "orders": "Orders",
+    "customers": "Customers",
+    "suppliers": "Suppliers"
+  },
+  "errors": {
+    "unauthenticated": "Please sign in again.",
+    "forbidden": "You don't have access to this.",
+    "not_found": "Not found.",
+    "validation_failed": "Please check the highlighted fields.",
+    "csrf_rejected": "This request was blocked for security reasons. Reload the page and try again.",
+    "internal_error": "Something went wrong. Please try again.",
+    "network_error": "No connection. Check your internet and try again.",
+    "invalid_credentials": "Wrong username or password.",
+    "too_many_attempts": "Too many failed attempts. Try again in {{minutes}} min.",
+    "setup_code_invalid": "The setup code is not correct.",
+    "setup_unavailable": "Setup is already complete. Please sign in.",
+    "current_password_invalid": "Your current password is not correct.",
+    "owner_protected": "The owner account cannot be deleted or demoted.",
+    "audit_append_only": "Audit entries cannot be changed.",
+    "username_invalid": "3–32 characters: letters, digits, dot, dash or underscore.",
+    "username_taken": "This username is already used.",
+    "display_name_invalid": "Enter a name (up to 80 characters).",
+    "password_too_short": "Use at least 10 characters.",
+    "password_too_long": "Use at most 128 characters.",
+    "password_too_common": "This password is too common. Choose another one.",
+    "password_same_as_current": "The new password must be different from the current one.",
+    "language_invalid": "Choose English, French or Arabic.",
+    "company_name_invalid": "Up to 120 characters.",
+    "timeout_out_of_range": "Choose between 15 minutes and 7 days.",
+    "unknown_field": "This field cannot be changed.",
+    "invalid_value": "This value is not valid.",
+    "name_invalid": "Enter a name (up to 120 characters).",
+    "text_too_long": "This text is too long.",
+    "email_invalid": "Enter a valid email address.",
+    "title_invalid": "Enter a title (up to 160 characters).",
+    "customer_invalid": "Choose a customer.",
+    "amount_invalid": "Enter an amount such as 85000 or 85000.50.",
+    "currency_invalid": "Choose a currency.",
+    "incoterm_invalid": "Choose an Incoterm from the list.",
+    "status_invalid": "Choose a status from the list.",
+    "date_invalid": "Enter a valid date.",
+    "product_name_invalid": "Enter the product name.",
+    "quantity_invalid": "Enter a whole number of 1 or more.",
+    "year_invalid": "Enter a year between 1950 and next year.",
+    "hs_code_invalid": "HS code: 4 to 14 digits or dots.",
+    "supplier_invalid": "Choose a supplier from the list.",
+    "note_invalid": "Write a note (up to 2000 characters).",
+    "prefix_invalid": "1 to 10 letters, digits or dashes.",
+    "customer_name_exists": "A customer with this name already exists.",
+    "in_use": "Still used by {{count}} order(s). It can't be deleted.",
+    "customer_deleted": "This order's customer is deleted. Restore the customer first."
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français",
+    "ar": "العربية",
+    "label": "Language"
+  },
+  "setup": {
+    "title": "Set up HANJING Order Manager",
+    "intro": "Create the owner account. You need the setup code shown in the server log when the app was installed.",
+    "language": "Language",
+    "setupCode": "Setup code",
+    "setupCodeHint": "Shown in the server log, e.g. ABCD-EFGH-JKLM.",
+    "username": "Username",
+    "usernameHint": "You will use it to sign in. Letters, digits, dot, dash or underscore.",
+    "displayName": "Display name",
+    "password": "Password",
+    "passwordHint": "At least 10 characters. A short sentence is easy to remember.",
+    "submit": "Create owner account",
+    "submitting": "Creating…"
+  },
+  "signIn": {
+    "title": "Sign in",
+    "subtitle": "Welcome back to HANJING Order Manager.",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "forgot": "Forgot your password? Ask the person who manages the server to reset it."
+  },
+  "dashboard": {
+    "welcome": "Welcome,",
+    "noCompany": "Company name not set yet",
+    "cards": {
+      "security": {
+        "title": "Security",
+        "description": "Password, signed-in devices and sign-in history"
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Company name, currencies and session timeout"
+      },
+      "audit": {
+        "title": "Audit log",
+        "description": "Who did what, and when"
+      },
+      "orders": {
+        "title": "Orders",
+        "description": "Create, find and follow every order"
+      },
+      "customers": {
+        "title": "Customers",
+        "description": "Buyers and their orders"
+      },
+      "suppliers": {
+        "title": "Suppliers",
+        "description": "Sellers in China and what they supplied"
+      }
+    },
+    "openOrders": "Open orders: {{count}}",
+    "noOpenOrders": "No open orders right now."
+  },
+  "connection": {
+    "offline": "You're offline. Screens you opened before still work; saving needs a connection.",
+    "unreachable": "Can't reach the server. Check your connection or VPN — we'll retry automatically."
+  },
+  "security": {
+    "title": "Security",
+    "locationUnknown": "Location unknown",
+    "geoAttribution": "IP geolocation by DB-IP",
+    "password": {
+      "title": "Change password",
+      "hint": "At least 10 characters. Your other devices will be signed out.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Repeat new password",
+      "submit": "Change password",
+      "submitting": "Changing…",
+      "success": "Password changed. Your other devices were signed out.",
+      "mismatch": "The two new passwords do not match."
+    },
+    "sessions": {
+      "title": "Signed-in devices",
+      "description": "Sign out any device you don't recognise or no longer use.",
+      "thisDevice": "This device",
+      "signedIn": "Signed in {{date}}",
+      "lastActive": "last active {{date}}",
+      "signOut": "Sign out",
+      "signOutAll": "Log out all devices",
+      "confirmTitle": "Log out all devices?",
+      "confirmBody": "Every device, including this one, will need to sign in again."
+    },
+    "history": {
+      "title": "Sign-in history",
+      "empty": "No sign-ins yet.",
+      "outcome": {
+        "success": "Signed in",
+        "failure": "Failed",
+        "blocked": "Blocked"
+      },
+      "reason": {
+        "ok": "Successful sign-in",
+        "invalid_credentials": "Wrong username or password",
+        "account_blocked": "Too many failed attempts on this account",
+        "ip_blocked": "Too many failed attempts from this network",
+        "account_inactive": "Account not active"
+      }
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "description": "Every sign-in and change: who made it, when and from which device. Entries can't be edited or deleted.",
+    "listLabel": "Audit entries",
+    "empty": "No entries match these filters.",
+    "systemActor": "Server console",
+    "showChanges": "Show changes",
+    "filters": {
+      "person": "Person",
+      "everyone": "Everyone",
+      "action": "Action",
+      "allActions": "All actions",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear filters"
+    },
+    "field": {
+      "companyName": "Company name",
+      "sessionIdleTimeoutMinutes": "Session timeout (minutes)",
+      "displayName": "Display name",
+      "language": "Language",
+      "username": "Username",
+      "role": "Role",
+      "deviceLabel": "Device",
+      "sessionsEnded": "Sessions ended"
+    },
+    "action": {
+      "setup.owner_created": "Owner account created",
+      "auth.sign_in": "Signed in",
+      "auth.sign_in_failed": "Failed sign-in",
+      "auth.sign_in_blocked": "Sign-in blocked",
+      "auth.sign_out": "Signed out",
+      "session.revoked": "Device signed out",
+      "session.revoked_all": "All devices signed out",
+      "session.timed_out": "Session timed out",
+      "password.changed": "Password changed",
+      "password.server_reset": "Password reset on the server",
+      "profile.updated": "Profile updated",
+      "settings.updated": "Settings updated",
+      "record.created": "Record created",
+      "record.updated": "Record updated",
+      "record.deleted": "Record deleted",
+      "record.restored": "Record restored"
+    }
+  },
+  "currency": {
+    "CNY": "Chinese yuan",
+    "USD": "US dollar",
+    "MAD": "Moroccan dirham",
+    "EUR": "Euro"
+  },
+  "settings": {
+    "title": "Settings",
+    "saved": "Settings saved.",
+    "company": {
+      "title": "Company",
+      "name": "Company name",
+      "nameHint": "Shown at the top of every screen. Any language."
+    },
+    "currencies": {
+      "title": "Currencies",
+      "description": "All profit and totals are calculated in the base currency. It cannot be changed.",
+      "base": "Base currency"
+    },
+    "session": {
+      "title": "Sign-in session",
+      "description": "Devices that stay unused this long are signed out automatically.",
+      "timeout": "Session timeout",
+      "unit": "Unit",
+      "range": "Between 15 minutes and 7 days.",
+      "units": {
+        "minutes": "Minutes",
+        "hours": "Hours",
+        "days": "Days"
+      }
+    },
+    "orderNumbers": {
+      "title": "Order numbers",
+      "prefix": "Prefix",
+      "hint": "1 to 10 letters, digits or dashes. Applies to new orders only.",
+      "next": "Next order number:"
+    }
+  },
+  "comingSoon": {
+    "body": "This section will be available in a coming update."
+  },
+  "orderStatus": {
+    "draft": "Draft",
+    "confirmed": "Confirmed",
+    "purchased": "Purchased",
+    "in_production": "In production",
+    "inland_transport": "Inland transport",
+    "at_port": "At port",
+    "on_vessel": "On vessel",
+    "arrived": "Arrived",
+    "customs_cleared": "Customs cleared",
+    "delivered": "Delivered",
+    "closed": "Closed",
+    "cancelled": "Cancelled"
+  },
+  "incoterm": {
+    "EXW": "Ex Works",
+    "FCA": "Free Carrier",
+    "FAS": "Free Alongside Ship",
+    "FOB": "Free On Board",
+    "CFR": "Cost and Freight",
+    "CIF": "Cost, Insurance and Freight",
+    "CPT": "Carriage Paid To",
+    "CIP": "Carriage and Insurance Paid To",
+    "DAP": "Delivered At Place",
+    "DPU": "Delivered at Place Unloaded",
+    "DDP": "Delivered Duty Paid"
+  },
+  "addressBook": {
+    "newCustomer": "New customer",
+    "newSupplier": "New supplier",
+    "name": "Name",
+    "company": "Company",
+    "contactPerson": "Contact person",
+    "wechat": "WeChat ID",
+    "city": "City",
+    "country": "Country",
+    "phone": "Phone",
+    "email": "Email",
+    "notes": "Notes",
+    "createAnyway": "Create anyway",
+    "change": "Change",
+    "searchPlaceholder": "Type to search…",
+    "createNamed": "Create “{{name}}”",
+    "defaultCountryCustomer": "Morocco",
+    "defaultCountrySupplier": "China",
+    "orderCount": "Orders: {{count}}",
+    "restore": "Restore",
+    "empty": "Nothing here yet.",
+    "noOrders": "No orders yet.",
+    "customers": {
+      "deletedTitle": "Deleted customers",
+      "new": "New customer",
+      "edit": "Edit customer",
+      "search": "Search customers",
+      "showDeleted": "Show deleted customers",
+      "newOrder": "New order for this customer",
+      "deleteTitle": "Delete this customer?"
+    },
+    "suppliers": {
+      "deletedTitle": "Deleted suppliers",
+      "new": "New supplier",
+      "edit": "Edit supplier",
+      "search": "Search suppliers",
+      "showDeleted": "Show deleted suppliers",
+      "newOrder": "New order",
+      "deleteTitle": "Delete this supplier?"
+    },
+    "deleteBody": "It disappears from lists and search. You can restore it later."
+  },
+  "orders": {
+    "newTitle": "New order",
+    "createdAt": "Created",
+    "itemsTotal": "Items total",
+    "difference": "Difference",
+    "differenceHint": "Agreed price minus items total. For information only.",
+    "form": {
+      "title": "Title",
+      "titleHint": "e.g. 2 Doosan excavators for MJTR Gold",
+      "customer": "Customer",
+      "deliveryCity": "Delivery city",
+      "agreedPrice": "Agreed price",
+      "currency": "Currency",
+      "agreedPriceHint": "The price agreed with the customer, typed by hand.",
+      "incoterm": "Incoterm",
+      "destinationPort": "Destination port",
+      "expectedDeliveryDate": "Expected delivery date",
+      "budgetCny": "Budget (CNY)",
+      "budgetHint": "Optional: the total cost you plan for this order.",
+      "create": "Create order",
+      "save": "Save order"
+    },
+    "items": {
+      "title": "Equipment",
+      "itemN": "Item {{n}}",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "productName": "Product name",
+      "brandModel": "Brand / model",
+      "year": "Year",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price ({{currency}})",
+      "hsCode": "HS code",
+      "specs": "Specifications",
+      "supplier": "Supplier",
+      "lineTotal": "Line total",
+      "add": "Add item",
+      "none": "No items yet."
+    },
+    "tabs": {
+      "label": "Order sections",
+      "overview": "Overview",
+      "expenses": "Expenses",
+      "payments": "Payments",
+      "shipment": "Shipment",
+      "documents": "Documents",
+      "invoices": "Invoices",
+      "notes": "Notes",
+      "reminders": "Reminders"
+    },
+    "deletedTitle": "Deleted orders",
+    "editTitle": "Edit order",
+    "status": "Status",
+    "actions": {
+      "edit": "Edit",
+      "duplicate": "Duplicate"
+    },
+    "list": {
+      "search": "Search orders",
+      "searchPlaceholder": "Number, title, customer, machine…",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "status": "Status",
+      "from": "Created from",
+      "to": "Created until",
+      "showDeleted": "Show deleted orders",
+      "noMatch": "No orders match.",
+      "empty": "No orders yet. Create the first one."
+    },
+    "copySuffix": " (copy)",
+    "notes": {
+      "label": "New note",
+      "placeholder": "Write a note…",
+      "add": "Add note",
+      "empty": "No notes yet.",
+      "delete": "Delete",
+      "confirmTitle": "Delete this note?",
+      "confirmBody": "It disappears from this order. The deletion stays in the audit log."
+    },
+    "delete": {
+      "title": "Delete this order?",
+      "body": "It disappears from lists and search. You can restore it from the deleted orders."
+    }
+  }
+}

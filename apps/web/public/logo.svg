@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0f3d5e"/>
+  <!-- "H" mark built from shapes (no font dependency) -->
+  <rect x="140" y="128" width="64" height="256" rx="12" fill="#ffffff"/>
+  <rect x="308" y="128" width="64" height="256" rx="12" fill="#ffffff"/>
+  <rect x="140" y="226" width="232" height="60" rx="12" fill="#ffffff"/>
+  <!-- container-ship baseline accent -->
+  <rect x="116" y="404" width="280" height="20" rx="10" fill="#f2b33d"/>
+</svg>

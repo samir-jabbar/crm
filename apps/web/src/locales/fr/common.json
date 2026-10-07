@@ -1,0 +1,429 @@
+{
+  "app": {
+    "name": "HANJING Gestion des commandes",
+    "shortName": "HANJING"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Enregistré",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "close": "Fermer",
+    "loadMore": "Afficher plus",
+    "unknown": "Inconnu",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "delete": "Supprimer"
+  },
+  "nav": {
+    "dashboard": "Accueil",
+    "security": "Sécurité",
+    "settings": "Paramètres",
+    "audit": "Journal d'audit",
+    "menu": "Menu",
+    "signOut": "Se déconnecter",
+    "orders": "Commandes",
+    "customers": "Clients",
+    "suppliers": "Fournisseurs"
+  },
+  "errors": {
+    "unauthenticated": "Veuillez vous reconnecter.",
+    "forbidden": "Vous n'avez pas accès à cette page.",
+    "not_found": "Introuvable.",
+    "validation_failed": "Veuillez vérifier les champs signalés.",
+    "csrf_rejected": "Cette requête a été bloquée pour des raisons de sécurité. Rechargez la page et réessayez.",
+    "internal_error": "Une erreur est survenue. Veuillez réessayer.",
+    "network_error": "Pas de connexion. Vérifiez votre connexion internet et réessayez.",
+    "invalid_credentials": "Nom d'utilisateur ou mot de passe incorrect.",
+    "too_many_attempts": "Trop de tentatives échouées. Réessayez dans {{minutes}} min.",
+    "setup_code_invalid": "Le code d'installation est incorrect.",
+    "setup_unavailable": "L'installation est déjà terminée. Veuillez vous connecter.",
+    "current_password_invalid": "Votre mot de passe actuel est incorrect.",
+    "owner_protected": "Le compte propriétaire ne peut pas être supprimé ni rétrogradé.",
+    "audit_append_only": "Le journal d'audit ne peut pas être modifié.",
+    "username_invalid": "3 à 32 caractères : lettres, chiffres, point, tiret ou tiret bas.",
+    "username_taken": "Ce nom d'utilisateur est déjà utilisé.",
+    "display_name_invalid": "Saisissez un nom (80 caractères maximum).",
+    "password_too_short": "Utilisez au moins 10 caractères.",
+    "password_too_long": "128 caractères maximum.",
+    "password_too_common": "Ce mot de passe est trop courant. Choisissez-en un autre.",
+    "password_same_as_current": "Le nouveau mot de passe doit être différent de l'actuel.",
+    "language_invalid": "Choisissez anglais, français ou arabe.",
+    "company_name_invalid": "120 caractères maximum.",
+    "timeout_out_of_range": "Choisissez entre 15 minutes et 7 jours.",
+    "unknown_field": "Ce champ ne peut pas être modifié.",
+    "invalid_value": "Cette valeur n'est pas valide.",
+    "name_invalid": "Saisissez un nom (120 caractères maximum).",
+    "text_too_long": "Ce texte est trop long.",
+    "email_invalid": "Saisissez une adresse e-mail valide.",
+    "title_invalid": "Saisissez un titre (160 caractères maximum).",
+    "customer_invalid": "Choisissez un client.",
+    "amount_invalid": "Saisissez un montant, par ex. 85000 ou 85000,50.",
+    "currency_invalid": "Choisissez une devise.",
+    "incoterm_invalid": "Choisissez un Incoterm dans la liste.",
+    "status_invalid": "Choisissez un statut dans la liste.",
+    "date_invalid": "Saisissez une date valide.",
+    "product_name_invalid": "Saisissez le nom du produit.",
+    "quantity_invalid": "Saisissez un nombre entier supérieur ou égal à 1.",
+    "year_invalid": "Saisissez une année entre 1950 et l'an prochain.",
+    "hs_code_invalid": "Code SH : 4 à 14 chiffres ou points.",
+    "supplier_invalid": "Choisissez un fournisseur dans la liste.",
+    "note_invalid": "Écrivez une note (2000 caractères maximum).",
+    "prefix_invalid": "1 à 10 lettres, chiffres ou tirets.",
+    "customer_name_exists": "Un client portant ce nom existe déjà.",
+    "in_use": "Encore utilisé par {{count}} commande(s). Suppression impossible.",
+    "customer_deleted": "Le client de cette commande est supprimé. Restaurez d'abord le client."
+  },
+  "language": {
+    "en": "English",
+    "fr": "Français",
+    "ar": "العربية",
+    "label": "Langue"
+  },
+  "setup": {
+    "title": "Installer HANJING Gestion des commandes",
+    "intro": "Créez le compte propriétaire. Il vous faut le code d'installation affiché dans le journal du serveur lors de l'installation.",
+    "language": "Langue",
+    "setupCode": "Code d'installation",
+    "setupCodeHint": "Affiché dans le journal du serveur, par ex. ABCD-EFGH-JKLM.",
+    "username": "Nom d'utilisateur",
+    "usernameHint": "Il sert à vous connecter. Lettres, chiffres, point, tiret ou tiret bas.",
+    "displayName": "Nom affiché",
+    "password": "Mot de passe",
+    "passwordHint": "Au moins 10 caractères. Une courte phrase est facile à retenir.",
+    "submit": "Créer le compte propriétaire",
+    "submitting": "Création…"
+  },
+  "signIn": {
+    "title": "Connexion",
+    "subtitle": "Bon retour sur HANJING Gestion des commandes.",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "submitting": "Connexion…",
+    "forgot": "Mot de passe oublié ? Demandez à la personne qui gère le serveur de le réinitialiser."
+  },
+  "dashboard": {
+    "welcome": "Bienvenue,",
+    "noCompany": "Nom de l'entreprise pas encore défini",
+    "cards": {
+      "security": {
+        "title": "Sécurité",
+        "description": "Mot de passe, appareils connectés et historique des connexions"
+      },
+      "settings": {
+        "title": "Paramètres",
+        "description": "Nom de l'entreprise, devises et délai de session"
+      },
+      "audit": {
+        "title": "Journal d'audit",
+        "description": "Qui a fait quoi, et quand"
+      },
+      "orders": {
+        "title": "Commandes",
+        "description": "Créer, retrouver et suivre chaque commande"
+      },
+      "customers": {
+        "title": "Clients",
+        "description": "Les acheteurs et leurs commandes"
+      },
+      "suppliers": {
+        "title": "Fournisseurs",
+        "description": "Les vendeurs en Chine et ce qu'ils ont fourni"
+      }
+    },
+    "openOrders": "Commandes en cours : {{count}}",
+    "noOpenOrders": "Aucune commande en cours pour l'instant."
+  },
+  "connection": {
+    "offline": "Vous êtes hors ligne. Les écrans déjà ouverts restent disponibles ; l'enregistrement nécessite une connexion.",
+    "unreachable": "Serveur injoignable. Vérifiez votre connexion ou votre VPN — nouvel essai automatique."
+  },
+  "security": {
+    "title": "Sécurité",
+    "locationUnknown": "Lieu inconnu",
+    "geoAttribution": "Géolocalisation IP par DB-IP",
+    "password": {
+      "title": "Changer le mot de passe",
+      "hint": "Au moins 10 caractères. Vos autres appareils seront déconnectés.",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Répétez le nouveau mot de passe",
+      "submit": "Changer le mot de passe",
+      "submitting": "Modification…",
+      "success": "Mot de passe changé. Vos autres appareils ont été déconnectés.",
+      "mismatch": "Les deux nouveaux mots de passe ne correspondent pas."
+    },
+    "sessions": {
+      "title": "Appareils connectés",
+      "description": "Déconnectez tout appareil que vous ne reconnaissez pas ou n'utilisez plus.",
+      "thisDevice": "Cet appareil",
+      "signedIn": "Connecté le {{date}}",
+      "lastActive": "dernière activité {{date}}",
+      "signOut": "Déconnecter",
+      "signOutAll": "Déconnecter tous les appareils",
+      "confirmTitle": "Déconnecter tous les appareils ?",
+      "confirmBody": "Tous les appareils, y compris celui-ci, devront se reconnecter."
+    },
+    "history": {
+      "title": "Historique des connexions",
+      "empty": "Aucune connexion pour l'instant.",
+      "outcome": {
+        "success": "Connecté",
+        "failure": "Échec",
+        "blocked": "Bloqué"
+      },
+      "reason": {
+        "ok": "Connexion réussie",
+        "invalid_credentials": "Nom d'utilisateur ou mot de passe incorrect",
+        "account_blocked": "Trop de tentatives échouées sur ce compte",
+        "ip_blocked": "Trop de tentatives échouées depuis ce réseau",
+        "account_inactive": "Compte inactif"
+      }
+    }
+  },
+  "audit": {
+    "title": "Journal d'audit",
+    "description": "Chaque connexion et modification : qui, quand et depuis quel appareil. Les entrées ne peuvent être ni modifiées ni supprimées.",
+    "listLabel": "Entrées du journal",
+    "empty": "Aucune entrée ne correspond à ces filtres.",
+    "systemActor": "Console du serveur",
+    "showChanges": "Voir les modifications",
+    "filters": {
+      "person": "Personne",
+      "everyone": "Tout le monde",
+      "action": "Action",
+      "allActions": "Toutes les actions",
+      "from": "Du",
+      "to": "Au",
+      "clear": "Effacer les filtres"
+    },
+    "field": {
+      "companyName": "Nom de l'entreprise",
+      "sessionIdleTimeoutMinutes": "Délai de session (minutes)",
+      "displayName": "Nom affiché",
+      "language": "Langue",
+      "username": "Nom d'utilisateur",
+      "role": "Rôle",
+      "deviceLabel": "Appareil",
+      "sessionsEnded": "Sessions fermées"
+    },
+    "action": {
+      "setup.owner_created": "Compte propriétaire créé",
+      "auth.sign_in": "Connexion",
+      "auth.sign_in_failed": "Échec de connexion",
+      "auth.sign_in_blocked": "Connexion bloquée",
+      "auth.sign_out": "Déconnexion",
+      "session.revoked": "Appareil déconnecté",
+      "session.revoked_all": "Tous les appareils déconnectés",
+      "session.timed_out": "Session expirée",
+      "password.changed": "Mot de passe changé",
+      "password.server_reset": "Mot de passe réinitialisé sur le serveur",
+      "profile.updated": "Profil modifié",
+      "settings.updated": "Paramètres modifiés",
+      "record.created": "Enregistrement créé",
+      "record.updated": "Enregistrement modifié",
+      "record.deleted": "Enregistrement supprimé",
+      "record.restored": "Enregistrement restauré"
+    }
+  },
+  "currency": {
+    "CNY": "Yuan chinois",
+    "USD": "Dollar américain",
+    "MAD": "Dirham marocain",
+    "EUR": "Euro"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "saved": "Paramètres enregistrés.",
+    "company": {
+      "title": "Entreprise",
+      "name": "Nom de l'entreprise",
+      "nameHint": "Affiché en haut de chaque écran. Toutes langues."
+    },
+    "currencies": {
+      "title": "Devises",
+      "description": "Tous les bénéfices et totaux sont calculés dans la devise de base. Elle ne peut pas être modifiée.",
+      "base": "Devise de base"
+    },
+    "session": {
+      "title": "Session de connexion",
+      "description": "Les appareils inutilisés pendant cette durée sont déconnectés automatiquement.",
+      "timeout": "Délai de session",
+      "unit": "Unité",
+      "range": "Entre 15 minutes et 7 jours.",
+      "units": {
+        "minutes": "Minutes",
+        "hours": "Heures",
+        "days": "Jours"
+      }
+    },
+    "orderNumbers": {
+      "title": "Numéros de commande",
+      "prefix": "Préfixe",
+      "hint": "1 à 10 lettres, chiffres ou tirets. S'applique aux nouvelles commandes seulement.",
+      "next": "Prochain numéro de commande :"
+    }
+  },
+  "comingSoon": {
+    "body": "Cette section sera disponible dans une prochaine mise à jour."
+  },
+  "orderStatus": {
+    "draft": "Brouillon",
+    "confirmed": "Confirmée",
+    "purchased": "Achetée",
+    "in_production": "En production",
+    "inland_transport": "Transport intérieur",
+    "at_port": "Au port",
+    "on_vessel": "À bord du navire",
+    "arrived": "Arrivée",
+    "customs_cleared": "Dédouanée",
+    "delivered": "Livrée",
+    "closed": "Clôturée",
+    "cancelled": "Annulée"
+  },
+  "incoterm": {
+    "EXW": "À l'usine",
+    "FCA": "Franco transporteur",
+    "FAS": "Franco le long du navire",
+    "FOB": "Franco à bord",
+    "CFR": "Coût et fret",
+    "CIF": "Coût, assurance et fret",
+    "CPT": "Port payé jusqu'à",
+    "CIP": "Port payé, assurance comprise, jusqu'à",
+    "DAP": "Rendu au lieu de destination",
+    "DPU": "Rendu au lieu de destination déchargé",
+    "DDP": "Rendu droits acquittés"
+  },
+  "addressBook": {
+    "newCustomer": "Nouveau client",
+    "newSupplier": "Nouveau fournisseur",
+    "name": "Nom",
+    "company": "Société",
+    "contactPerson": "Personne de contact",
+    "wechat": "Identifiant WeChat",
+    "city": "Ville",
+    "country": "Pays",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "notes": "Notes",
+    "createAnyway": "Créer quand même",
+    "change": "Changer",
+    "searchPlaceholder": "Tapez pour rechercher…",
+    "createNamed": "Créer « {{name}} »",
+    "defaultCountryCustomer": "Maroc",
+    "defaultCountrySupplier": "Chine",
+    "orderCount": "Commandes : {{count}}",
+    "restore": "Restaurer",
+    "empty": "Rien pour l'instant.",
+    "noOrders": "Aucune commande pour l'instant.",
+    "customers": {
+      "deletedTitle": "Clients supprimés",
+      "new": "Nouveau client",
+      "edit": "Modifier le client",
+      "search": "Rechercher des clients",
+      "showDeleted": "Afficher les clients supprimés",
+      "newOrder": "Nouvelle commande pour ce client",
+      "deleteTitle": "Supprimer ce client ?"
+    },
+    "suppliers": {
+      "deletedTitle": "Fournisseurs supprimés",
+      "new": "Nouveau fournisseur",
+      "edit": "Modifier le fournisseur",
+      "search": "Rechercher des fournisseurs",
+      "showDeleted": "Afficher les fournisseurs supprimés",
+      "newOrder": "Nouvelle commande",
+      "deleteTitle": "Supprimer ce fournisseur ?"
+    },
+    "deleteBody": "Il disparaît des listes et de la recherche. Vous pourrez le restaurer plus tard."
+  },
+  "orders": {
+    "newTitle": "Nouvelle commande",
+    "createdAt": "Créée le",
+    "itemsTotal": "Total des articles",
+    "difference": "Écart",
+    "differenceHint": "Prix convenu moins total des articles. À titre indicatif.",
+    "form": {
+      "title": "Titre",
+      "titleHint": "ex. 2 pelles Doosan pour MJTR Gold",
+      "customer": "Client",
+      "deliveryCity": "Ville de livraison",
+      "agreedPrice": "Prix convenu",
+      "currency": "Devise",
+      "agreedPriceHint": "Le prix convenu avec le client, saisi à la main.",
+      "incoterm": "Incoterm",
+      "destinationPort": "Port de destination",
+      "expectedDeliveryDate": "Date de livraison prévue",
+      "budgetCny": "Budget (CNY)",
+      "budgetHint": "Facultatif : le coût total prévu pour cette commande.",
+      "create": "Créer la commande",
+      "save": "Enregistrer la commande"
+    },
+    "items": {
+      "title": "Équipements",
+      "itemN": "Article {{n}}",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "remove": "Retirer",
+      "productName": "Nom du produit",
+      "brandModel": "Marque / modèle",
+      "year": "Année",
+      "quantity": "Quantité",
+      "unitPrice": "Prix unitaire ({{currency}})",
+      "hsCode": "Code SH",
+      "specs": "Caractéristiques",
+      "supplier": "Fournisseur",
+      "lineTotal": "Total de la ligne",
+      "add": "Ajouter un article",
+      "none": "Aucun article pour l'instant."
+    },
+    "tabs": {
+      "label": "Sections de la commande",
+      "overview": "Aperçu",
+      "expenses": "Dépenses",
+      "payments": "Paiements",
+      "shipment": "Expédition",
+      "documents": "Documents",
+      "invoices": "Factures",
+      "notes": "Notes",
+      "reminders": "Rappels"
+    },
+    "deletedTitle": "Commandes supprimées",
+    "editTitle": "Modifier la commande",
+    "status": "Statut",
+    "actions": {
+      "edit": "Modifier",
+      "duplicate": "Dupliquer"
+    },
+    "list": {
+      "search": "Rechercher des commandes",
+      "searchPlaceholder": "Numéro, titre, client, machine…",
+      "filters": "Filtres",
+      "clearFilters": "Effacer les filtres",
+      "status": "Statut",
+      "from": "Créées à partir du",
+      "to": "Créées jusqu'au",
+      "showDeleted": "Afficher les commandes supprimées",
+      "noMatch": "Aucune commande ne correspond.",
+      "empty": "Aucune commande pour l'instant. Créez la première."
+    },
+    "copySuffix": " (copie)",
+    "notes": {
+      "label": "Nouvelle note",
+      "placeholder": "Écrivez une note…",
+      "add": "Ajouter la note",
+      "empty": "Aucune note pour l'instant.",
+      "delete": "Supprimer",
+      "confirmTitle": "Supprimer cette note ?",
+      "confirmBody": "Elle disparaît de cette commande. La suppression reste dans le journal d'audit."
+    },
+    "delete": {
+      "title": "Supprimer cette commande ?",
+      "body": "Elle disparaît des listes et de la recherche. Vous pourrez la restaurer depuis les commandes supprimées."
+    }
+  }
+}

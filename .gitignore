@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+dev-dist/
+*.tsbuildinfo
+
+# runtime data (database, uploads, geo database)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# environment
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.e2e-data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.idea/
+.vscode/

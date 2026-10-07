@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+/* Self-hosted Arabic font (D5). Its @font-face rules carry unicode-range, so only Arabic text downloads it. */
+@import '@fontsource-variable/noto-sans-arabic';
+
+@theme {
+  --color-background: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-foreground: #14212b;
+  --color-muted: #eef1f4;
+  --color-muted-foreground: #5b6b78;
+  --color-border: #d6dde3;
+  --color-primary: #0f3d5e;
+  --color-primary-foreground: #ffffff;
+  --color-danger: #b42318;
+  --color-success: #12715b;
+  --color-warning: #c27c0e;
+
+  /* Arabic first: unicode-range limits it to Arabic glyphs. Latin and Chinese use the phone's own fonts. */
+  --font-sans:
+    'Noto Sans Arabic Variable', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100dvh;
+  }
+  /* Keep thumbs on target: never shrink below a comfortable size. */
+  button,
+  [role='button'],
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
