@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAccess } from '@/lib/access';
 import { useDebounced } from '@/lib/useDebounced';
 
 export type Kind = 'customers' | 'suppliers';
@@ -35,6 +36,8 @@ const FIELDS: Record<Kind, FieldKey[]> = {
   suppliers: ['name', 'company', 'contactPerson', 'phone', 'wechat', 'email', 'city', 'country', 'notes'],
 };
 const LTR_FIELDS = new Set<FieldKey>(['phone', 'email', 'wechat']);
+/** 005 FR-025: a customer's contact details. */
+const CONTACT_FIELDS = new Set<FieldKey>(['phone', 'email', 'notes']);
 
 function useKind(kind: Kind) {
   const customers = useCustomerMutations();
@@ -54,9 +57,9 @@ function useEntity(kind: Kind, id: string | undefined, deleted = false) {
   return kind === 'customers' ? customer : supplier;
 }
 
-function useEntityOrders(kind: Kind, id: string | undefined) {
-  const customer = useCustomerOrders(kind === 'customers' ? id : undefined);
-  const supplier = useSupplierOrders(kind === 'suppliers' ? id : undefined);
+function useEntityOrders(kind: Kind, id: string | undefined, enabled: boolean) {
+  const customer = useCustomerOrders(kind === 'customers' && enabled ? id : undefined);
+  const supplier = useSupplierOrders(kind === 'suppliers' && enabled ? id : undefined);
   return kind === 'customers' ? customer : supplier;
 }
 
@@ -70,18 +73,21 @@ export function AddressListPage({ kind }: { kind: Kind }) {
   const [deleted, setDeleted] = useState(false);
   const list = useEntityList(kind, q, deleted);
   const { restore } = useKind(kind);
+  const access = useAccess();
   const items = (list.data?.pages.flatMap((p) => p.items) ?? []) as Entity[];
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{deleted ? t(`addressBook.${kind}.deletedTitle`) : t(`nav.${kind}`)}</h1>
-        <Link
-          to={`/${kind}/new`}
-          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
-        >
-          {t(`addressBook.${kind}.new`)}
-        </Link>
+        {access.can(kind, 'create') ? (
+          <Link
+            to={`/${kind}/new`}
+            className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+          >
+            {t(`addressBook.${kind}.new`)}
+          </Link>
+        ) : null}
       </div>
       <Input
         type="search"
@@ -91,10 +97,12 @@ export function AddressListPage({ kind }: { kind: Kind }) {
         onChange={(e) => setText(e.target.value)}
         dir="auto"
       />
-      <label className="flex min-h-11 items-center gap-2 text-sm">
-        <input type="checkbox" className="size-4" checked={deleted} onChange={(e) => setDeleted(e.target.checked)} />
-        {t(`addressBook.${kind}.showDeleted`)}
-      </label>
+      {access.can(kind, 'delete') ? (
+        <label className="flex min-h-11 items-center gap-2 text-sm">
+          <input type="checkbox" className="size-4" checked={deleted} onChange={(e) => setDeleted(e.target.checked)} />
+          {t(`addressBook.${kind}.showDeleted`)}
+        </label>
+      ) : null}
 
       {list.error ? <Alert tone="danger">{errorMessage(list.error)}</Alert> : null}
       {restore.error ? <Alert tone="danger">{errorMessage(restore.error)}</Alert> : null}
@@ -154,7 +162,8 @@ function EntityForm({ kind, entity }: { kind: Kind; entity?: Entity }) {
   const navigate = useNavigate();
   const { create, update } = useKind(kind);
   const mutation = entity ? update : create;
-  const fields = FIELDS[kind];
+  const contactsHidden = useAccess().hidden('customerContacts');
+  const fields = FIELDS[kind].filter((f) => !(kind === 'customers' && contactsHidden && CONTACT_FIELDS.has(f)));
   const [values, setValues] = useState<Record<FieldKey, string>>(() => {
     const initial = Object.fromEntries(fields.map((f) => [f, ''])) as Record<FieldKey, string>;
     if (entity) for (const f of fields) initial[f] = ((entity as unknown as Record<string, string | null>)[f] ?? '') as string;
@@ -254,7 +263,8 @@ export function AddressDetailPage({ kind }: { kind: Kind }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const entity = useEntity(kind, id);
-  const orders = useEntityOrders(kind, id);
+  const access = useAccess();
+  const orders = useEntityOrders(kind, id, access.can('orders'));
   const { remove } = useKind(kind);
 
   if (entity.isPending) return <p className="text-muted-foreground">{t('common.loading')}</p>;
@@ -268,13 +278,15 @@ export function AddressDetailPage({ kind }: { kind: Kind }) {
         {e.name}
       </h1>
       <div className="flex flex-wrap gap-2">
-        <Link
-          to={`/${kind}/${e.id}/edit`}
-          className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-muted"
-        >
-          {t('orders.actions.edit')}
-        </Link>
-        {kind === 'customers' ? (
+        {access.can(kind, 'edit') ? (
+          <Link
+            to={`/${kind}/${e.id}/edit`}
+            className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium hover:bg-muted"
+          >
+            {t('orders.actions.edit')}
+          </Link>
+        ) : null}
+        {kind === 'customers' && access.can('orders', 'create') ? (
           <Link
             to={`/orders/new?customerId=${e.id}`}
             className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
@@ -282,14 +294,16 @@ export function AddressDetailPage({ kind }: { kind: Kind }) {
             {t('addressBook.customers.newOrder')}
           </Link>
         ) : null}
-        <ConfirmDelete
-          title={t(`addressBook.${kind}.deleteTitle`)}
-          body={t('addressBook.deleteBody')}
-          pending={remove.isPending}
-          error={remove.error}
-          onReset={() => remove.reset()}
-          onConfirm={() => remove.mutate(e.id, { onSuccess: () => void navigate(`/${kind}`, { replace: true }) })}
-        />
+        {access.can(kind, 'delete') ? (
+          <ConfirmDelete
+            title={t(`addressBook.${kind}.deleteTitle`)}
+            body={t('addressBook.deleteBody')}
+            pending={remove.isPending}
+            error={remove.error}
+            onReset={() => remove.reset()}
+            onConfirm={() => remove.mutate(e.id, { onSuccess: () => void navigate(`/${kind}`, { replace: true }) })}
+          />
+        ) : null}
       </div>
 
       <Card>
@@ -317,6 +331,7 @@ export function AddressDetailPage({ kind }: { kind: Kind }) {
         </dl>
       </Card>
 
+      {access.can('orders') ? (
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">{t('nav.orders')}</h2>
         {orders.data && orders.data.items.length === 0 ? (
@@ -335,7 +350,7 @@ export function AddressDetailPage({ kind }: { kind: Kind }) {
                   </p>
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <StatusBadge status={o.status} />
-                    <AmountText value={o.agreedPrice} currency={o.currency} />
+                    {o.agreedPrice !== undefined ? <AmountText value={o.agreedPrice} currency={o.currency} /> : null}
                   </div>
                 </Card>
               </Link>
@@ -343,6 +358,7 @@ export function AddressDetailPage({ kind }: { kind: Kind }) {
           ))}
         </ul>
       </section>
+      ) : null}
     </div>
   );
 }

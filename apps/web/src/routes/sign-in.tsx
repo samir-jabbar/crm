@@ -2,10 +2,11 @@ import type { MeResponse, SignInRequest } from '@hanjing/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useErrorMessage } from '@/api/errors';
 import { api } from '@/api/http';
 import { queryKeys } from '@/api/queries';
+import { useRegistrationStatus } from '@/api/users';
 import { Field, PasswordField } from '@/components/Field';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { PublicLayout } from '@/components/PublicLayout';
@@ -20,6 +21,7 @@ export function SignInPage() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const [values, setValues] = useState<SignInRequest>({ username: '', password: '' });
+  const registration = useRegistrationStatus();
 
   const mutation = useMutation({
     mutationFn: (body: SignInRequest) => api<MeResponse>('POST', '/api/auth/sign-in', body),
@@ -65,6 +67,14 @@ export function SignInPage() {
           </Button>
         </form>
       </Card>
+      {registration.data?.open ? (
+        <p className="mt-4 text-center text-sm">
+          {t('signIn.newHere')}{' '}
+          <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
+            {t('signIn.register')}
+          </Link>
+        </p>
+      ) : null}
       <p className="mt-4 text-center text-xs text-muted-foreground">{t('signIn.forgot')}</p>
     </PublicLayout>
   );

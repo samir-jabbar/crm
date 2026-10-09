@@ -1,3 +1,4 @@
+import { REGISTRATION_THROTTLE } from '@hanjing/shared';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
@@ -20,6 +21,19 @@ const envSchema = z.object({
   SETUP_CODE: z.string().trim().min(8).optional(),
   GEO_DB_PATH: z.string().min(1).optional(),
   WEB_DIST_DIR: z.string().min(1).default(resolve(SERVER_ROOT, '..', 'web', 'dist')),
+  /** 003 R3: each provider call gives up after this long, so the "unavailable" message shows within 5 s. */
+  RATE_FETCH_TIMEOUT_MS: z.coerce.number().int().min(1).max(60_000).default(5000),
+  /** Currency API URL templates, tried in order (`{date}` = `latest` or `YYYY-MM-DD`). Overridable for mirrors and tests. */
+  RATES_CURRENCY_API_URLS: z
+    .string()
+    .min(1)
+    .default(
+      'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@{date}/v1/currencies/cny.json,' +
+        'https://{date}.currency-api.pages.dev/v1/currencies/cny.json',
+    ),
+  RATES_EXCHANGERATE_API_URL: z.string().min(1).default('https://open.er-api.com/v6/latest/CNY'),
+  /** 005 FR-006: registrations accepted per network origin per hour. Raise only for automated tests. */
+  REGISTRATIONS_PER_HOUR: z.coerce.number().int().min(1).max(10_000).default(REGISTRATION_THROTTLE.max),
 });
 
 export interface Config {
@@ -35,6 +49,10 @@ export interface Config {
   serveWeb: boolean;
   /** Secure cookies whenever the app is served over HTTPS. */
   cookieSecure: boolean;
+  rateFetchTimeoutMs: number;
+  currencyApiUrls: string[];
+  exchangeRateApiUrl: string;
+  registrationsPerHour: number;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -59,5 +77,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     webDistDir: resolve(e.WEB_DIST_DIR),
     serveWeb: e.NODE_ENV === 'production',
     cookieSecure: e.NODE_ENV === 'production' && appOrigins.every((o) => o.startsWith('https://')),
+    rateFetchTimeoutMs: e.RATE_FETCH_TIMEOUT_MS,
+    currencyApiUrls: e.RATES_CURRENCY_API_URLS.split(',')
+      .map((u) => u.trim())
+      .filter(Boolean),
+    exchangeRateApiUrl: e.RATES_EXCHANGERATE_API_URL,
+    registrationsPerHour: e.REGISTRATIONS_PER_HOUR,
   };
 }

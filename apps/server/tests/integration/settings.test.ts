@@ -19,6 +19,8 @@ describe('company settings', () => {
         { code: 'EUR', symbol: '€', minorUnits: 2 },
       ],
       sessionIdleTimeoutMinutes: 720,
+      // Added by 005 (Owner only).
+      registrationOpen: true,
       // Added by 002 (order numbers).
       orderNumberPrefix: 'HJ',
       nextOrderNumber: 'HJ-2026-001',

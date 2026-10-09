@@ -56,7 +56,7 @@ Every money record (expense, payment, invoice, order price) stores:
 
 USD and MAD equivalents are computed from frozen USD/CNY and MAD/CNY snapshots on the same record. EUR is supported with its own EUR/CNY rate field; the brief lists EUR but gave it no rate. Reports always use stored rates, never today's rate (brief §6). Amounts are stored as exact decimals or integer minor units, never floats.
 
-**D2. Converting the agreed price** *(proposed — confirm in 004)*.
+**D2. Converting the agreed price** *(decided 2026-10-07, in 003: an order not priced in CNY stores an agreed rate, which converts the agreed price for profit; 004 adds payment rates for the received part. Decided 2026-10-08, in 004: a payment counts for the CNY that actually arrived, at the bank's rate when one is entered; a payment in another currency counts toward the order through its own rates, with a manual override)*.
 An order priced in a currency other than CNY must store an *agreed reference rate* when it is created.
 - Profit in CNY = (the received part, at each payment's frozen rate) + (the outstanding part, at the reference rate) − (expenses, at their own frozen rates).
 - Remaining to collect is tracked in the order's own currency, because that is what the customer owes. CNY, USD and MAD equivalents are shown for reporting.
@@ -216,8 +216,8 @@ The advisor keeps the brief's rule that it never advises hiding payments or unde
 **Depends on:** 002.
 **Done when** (brief §9 AC1): the Owner adds 10 different expenses to Order #1. Each is shown by name and tied to Order #1, and the profit updates instantly.
 **Clarify:**
-- brief §10 Q9: must cash expenses be linked to a person, such as a driver or worker?
-- which rate provider to use.
+- brief §10 Q9: *decided 2026-10-07*. "Paid to" is a supplier or a typed name, and "advanced by" records who paid out of pocket, with a reimbursed flag and per-person totals.
+- which rate provider to use (chosen in 003 plan).
 
 **Prompt**
 ```

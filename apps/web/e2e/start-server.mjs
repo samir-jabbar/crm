@@ -3,6 +3,7 @@ import { execSync, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FAKE_RATES_URLS, startFakeRates } from './fake-rates.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const webDir = resolve(here, '..');
@@ -13,6 +14,9 @@ rmSync(dataDir, { recursive: true, force: true });
 mkdirSync(dataDir, { recursive: true });
 
 execSync('npm run build', { cwd: webDir, stdio: 'inherit' });
+
+// 003: the API server talks to this local fake instead of the real rate providers.
+const fakeRates = startFakeRates();
 
 const server = spawn('npm run start -w @hanjing/server', {
   cwd: repoRoot,
@@ -26,10 +30,19 @@ const server = spawn('npm run start -w @hanjing/server', {
     DATA_DIR: dataDir,
     SETUP_CODE: 'E2E-SETUP-CODE',
     TRUST_PROXY: 'false',
+    // 005: every e2e registration comes from 127.0.0.1.
+    REGISTRATIONS_PER_HOUR: '1000',
+    ...FAKE_RATES_URLS,
   },
 });
 
-const stop = () => server.kill();
+const stop = () => {
+  server.kill();
+  fakeRates.close();
+};
 process.on('SIGINT', stop);
 process.on('SIGTERM', stop);
-server.on('exit', (code) => process.exit(code ?? 0));
+server.on('exit', (code) => {
+  fakeRates.close();
+  process.exit(code ?? 0);
+});

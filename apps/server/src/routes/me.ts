@@ -84,7 +84,11 @@ export function registerMeRoutes(app: Hono<AppEnv>, deps: Deps): void {
     const passwordHash = await hashPassword(input.newPassword);
     db.transaction((tx) => {
       const now = clock.now();
-      tx.update(users).set({ passwordHash, passwordChangedAt: now, updatedAt: now }).where(eq(users.id, user.id)).run();
+      // 005 FR-037: choosing their own password ends an Owner-set temporary one.
+      tx.update(users)
+        .set({ passwordHash, passwordChangedAt: now, updatedAt: now, mustChangePassword: false })
+        .where(eq(users.id, user.id))
+        .run();
       revokeAllForUser(tx, clock, user.id, 'password_change', { exceptSessionId: session.id });
       recordAudit(tx, clock, {
         actorUserId: user.id,

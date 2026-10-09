@@ -1,3 +1,4 @@
+import { isHidden } from '@hanjing/shared';
 import { addressBookQuerySchema, createCustomerRequestSchema, updateCustomerRequestSchema, type OrderListItem, type Customer, type Page } from '@hanjing/shared';
 import type { Hono } from 'hono';
 import { createCustomer, deleteCustomer, getCustomer, listCustomers, restoreCustomer, updateCustomer } from '../customers/service';
@@ -6,7 +7,8 @@ import type { Deps } from '../deps';
 import type { AppEnv } from '../env';
 import { notFound } from '../lib/errors';
 import { parseWith, readJsonBody } from '../lib/validate';
-import { requirePermission } from '../policy/authorize';
+import { accessOf, requirePermission } from '../policy/authorize';
+import { customerVisible, orderVisible, requireCustomerInScope } from '../policy/scope';
 import { presentCustomer, presentOrderListItem } from '../policy/present';
 import { route } from '../policy/route';
 
@@ -18,7 +20,8 @@ export function registerCustomerRoutes(app: Hono<AppEnv>, deps: Deps): void {
     const viewer = c.get('user')!;
     const query = parseWith(addressBookQuerySchema, c.req.query());
     if (query.deleted) requirePermission(viewer, 'customers', 'delete');
-    const page = listCustomers(db, query);
+    const access = accessOf(viewer);
+    const page = listCustomers(db, query, customerVisible(access), { searchPhone: !isHidden(access, 'customerContacts') });
     return c.json<Page<Customer>>({ items: page.items.map((r) => presentCustomer(r, { viewer })), nextCursor: page.nextCursor });
   });
 
@@ -30,6 +33,7 @@ export function registerCustomerRoutes(app: Hono<AppEnv>, deps: Deps): void {
   });
 
   route(app, 'GET', '/api/customers/:id', { module: 'customers', action: 'view' }, (c) => {
+    requireCustomerInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     const deleted = c.req.query('deleted') === 'true';
     if (deleted) requirePermission(viewer, 'customers', 'delete');
@@ -39,6 +43,7 @@ export function registerCustomerRoutes(app: Hono<AppEnv>, deps: Deps): void {
   });
 
   route(app, 'PATCH', '/api/customers/:id', { module: 'customers', action: 'edit' }, async (c) => {
+    requireCustomerInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     const input = parseWith(updateCustomerRequestSchema, await readJsonBody(c));
     const row = db.transaction((tx) => updateCustomer(tx, clock, c.req.param('id') ?? '', input, viewer, c.get('reqCtx')));
@@ -46,20 +51,23 @@ export function registerCustomerRoutes(app: Hono<AppEnv>, deps: Deps): void {
   });
 
   route(app, 'GET', '/api/customers/:id/orders', { module: 'customers', action: 'view' }, (c) => {
+    requireCustomerInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     requirePermission(viewer, 'orders', 'view');
     const id = c.req.param('id') ?? '';
     if (!getCustomer(db, id)) throw notFound();
-    const items = ordersOfCustomer(db, id).map((row) => presentOrderListItem(row, { viewer }));
+    const items = ordersOfCustomer(db, id, orderVisible(accessOf(viewer))).map((row) => presentOrderListItem(row, { viewer }));
     return c.json<{ items: OrderListItem[] }>({ items });
   });
 
   route(app, 'DELETE', '/api/customers/:id', { module: 'customers', action: 'delete' }, (c) => {
+    requireCustomerInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     db.transaction((tx) => deleteCustomer(tx, clock, c.req.param('id') ?? '', c.get('user')!, c.get('reqCtx')));
     return c.body(null, 204);
   });
 
   route(app, 'POST', '/api/customers/:id/restore', { module: 'customers', action: 'delete' }, (c) => {
+    requireCustomerInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     const row = db.transaction((tx) => restoreCustomer(tx, clock, c.req.param('id') ?? '', viewer, c.get('reqCtx')));
     return c.json(presentCustomer(row, { viewer }));

@@ -28,7 +28,15 @@ describe('permission gate', () => {
       .filter((r) => r.policy === 'public')
       .map((r) => `${r.method} ${r.path}`)
       .sort();
-    expect(publicRoutes).toEqual(['GET /api/health', 'GET /api/setup/status', 'POST /api/auth/sign-in', 'POST /api/setup']);
+    expect(publicRoutes).toEqual([
+      // 005: self-registration (D9).
+      'GET /api/auth/registration',
+      'GET /api/health',
+      'GET /api/setup/status',
+      'POST /api/auth/register',
+      'POST /api/auth/sign-in',
+      'POST /api/setup',
+    ]);
   });
 
   it('fails at startup when a route bypasses route()', () => {

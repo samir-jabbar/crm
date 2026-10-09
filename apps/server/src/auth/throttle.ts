@@ -1,5 +1,5 @@
 import { SIGN_IN_THROTTLE } from '@hanjing/shared';
-import { and, asc, eq, gt } from 'drizzle-orm';
+import { and, asc, eq, gt, notInArray } from 'drizzle-orm';
 import type { Clock } from '../clock';
 import type { Executor } from '../db/client';
 import { signInAttempts } from '../db/schema';
@@ -18,11 +18,12 @@ function unblockAt(failureTimes: number[]): number | null {
   return failureTimes[failureTimes.length - maxFailures]! + windowMs;
 }
 
+/** 005: refusals after a correct password (pending, suspended, ended) are not guesses and never count. */
+const NOT_GUESSES = ['account_pending', 'account_suspended', 'access_ended'] as const;
+
 function recentFailures(db: Executor, since: number, column: 'username' | 'ip', value: string): number[] {
-  const where =
-    column === 'username'
-      ? and(eq(signInAttempts.usernameNormalized, value), eq(signInAttempts.outcome, 'failure'), gt(signInAttempts.occurredAt, since))
-      : and(eq(signInAttempts.ip, value), eq(signInAttempts.outcome, 'failure'), gt(signInAttempts.occurredAt, since));
+  const failures = and(eq(signInAttempts.outcome, 'failure'), notInArray(signInAttempts.reason, [...NOT_GUESSES]), gt(signInAttempts.occurredAt, since));
+  const where = column === 'username' ? and(eq(signInAttempts.usernameNormalized, value), failures) : and(eq(signInAttempts.ip, value), failures);
   return db
     .select({ at: signInAttempts.occurredAt })
     .from(signInAttempts)

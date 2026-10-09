@@ -27,8 +27,14 @@ Before writing or changing code that uses any library, framework, SDK or CLI, ca
 - SQLite (WAL mode), file under `DATA_DIR` (001-platform-foundation)
 - Hono 4 API + React 19/Vite 8 PWA (React Router 8, TanStack Query, Tailwind v4, Radix + shadcn-style components, i18next), Drizzle ORM, Vitest + Playwright; npm workspaces `apps/server`, `apps/web`, `packages/shared` (001-platform-foundation)
 - Money as integer minor units, decimal strings in the API; `hj_norm` SQL function for cross-script search (002-customers-suppliers-orders)
+- Exchange rates as integer micro-units (BigInt conversion); rate providers via injectable `deps.http` (never real network in tests); receipts under `DATA_DIR/receipts` (003-expenses-exchange-rates)
+- Percentages in basis points; migrations run with foreign keys off around Drizzle's transaction, then `foreign_key_check`, after a pre-migration copy in `DATA_DIR/backups` (004-payments-financial-summary)
+- Per-request `Access` (module grants, hidden groups, scope) from the user row; scope as SQL subqueries in `policy/scope.ts`; hidden keys omitted via `HIDDEN_FIELDS` and the shared `FIGURES` table; sentinel route sweeps prove no leaks (005-workers-permissions)
 
 ## Recent Changes
+- 005-workers-permissions: self-registration with Owner approval, role templates, module × action matrix, data scope (assigned / customers / own entries / end date), hidden value groups with D6 inheritance, account management
+- 004-payments-financial-summary: two-channel payments with frozen rates and bank conversion, payment plans, D2 profit, closing rule and currency lock, pre-migration copies
+- 003-expenses-exchange-rates: expenses with frozen rates and receipts, agreed rate + profit on orders, rate service (Currency API default), reimbursements
 - 002-customers-suppliers-orders: customers, suppliers, orders (HJ-YYYY-NNN numbers, typed agreed price), notes, soft delete/restore
 - 001-platform-foundation: stack chosen; custom username + password session auth (ROADMAP D9)
 

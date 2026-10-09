@@ -14,6 +14,8 @@ export const companySettings = sqliteTable(
     sessionIdleTimeoutMinutes: integer('session_idle_timeout_minutes').notNull().default(720),
     /** 002: order numbers are `<prefix>-<year>-<counter>` (FR-022). */
     orderNumberPrefix: text('order_number_prefix').notNull().default('HJ'),
+    /** 005: whether new workers may register (FR-006). Owner-only. */
+    registrationOpen: integer('registration_open', { mode: 'boolean' }).notNull().default(true),
     updatedAt: integer('updated_at').notNull(),
     updatedBy: text('updated_by').references(() => users.id),
   },

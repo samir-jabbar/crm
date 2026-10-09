@@ -11,6 +11,7 @@ import { sessions, users, type SessionRow, type UserRow } from '../db/schema';
 import { newId } from '../lib/ids';
 import type { RequestCtx } from '../lib/requestContext';
 import { getIdleTimeoutMs } from '../settings/service';
+import { accessEnded } from '../policy/access';
 
 export const SESSION_COOKIE = 'hj_session';
 /** last_active_at is written at most this often, to limit writes. */
@@ -96,7 +97,8 @@ export function validateSessionToken(db: DB, clock: Clock, token: string): Valid
     return null;
   }
 
-  if (row.user.status !== 'active') return null;
+  // 005: suspended, deleted and ended accounts lose their sessions at the next request (FR-023, FR-036).
+  if (row.user.status !== 'active' || accessEnded(row.user, now)) return null;
 
   if (now - row.session.lastActiveAt > TOUCH_INTERVAL_MS) {
     db.update(sessions).set({ lastActiveAt: now }).where(eq(sessions.id, row.session.id)).run();

@@ -21,6 +21,7 @@ test('create an order on a phone with a new customer and a new supplier', async 
 
   // Price, Incoterm, port.
   await page.getByLabel('Agreed price').fill('190000');
+  await page.getByLabel('Agreed rate').fill('7.1'); // 003: required for non-CNY orders
   await page.getByLabel('Incoterm').selectOption('CIF');
   await page.getByLabel('Destination port').fill('Casablanca');
 
@@ -74,6 +75,7 @@ test('duplicate an order, then add and delete notes', async ({ page }) => {
     customerId: customer.id,
     agreedPrice: '50000',
     currency: 'EUR',
+    agreedRate: '7.8',
     items: [
       { productName: 'Forklift', quantity: 1, unitPrice: '20000' },
       { productName: 'Crusher', quantity: 1, unitPrice: '25000' },
@@ -111,7 +113,7 @@ test('delete and restore an order; a customer in use cannot be deleted', async (
   await signIn(page);
   const tag = Date.now().toString(36);
   const customer = await apiCustomer(page, `Busy customer ${tag}`);
-  const order = await apiOrder(page, { title: `Mistake ${tag}`, customerId: customer.id, agreedPrice: '10', currency: 'USD' });
+  const order = await apiOrder(page, { title: `Mistake ${tag}`, customerId: customer.id, agreedPrice: '10', currency: 'USD', agreedRate: '7.1' });
 
   // A customer with orders cannot be deleted.
   await page.goto(`/customers/${customer.id}`);

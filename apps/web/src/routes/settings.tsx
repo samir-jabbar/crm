@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { fieldErrors, useErrorMessage } from '@/api/errors';
 import { api, ApiError } from '@/api/http';
 import { queryKeys } from '@/api/queries';
+import { useAccess } from '@/lib/access';
 import { Field } from '@/components/Field';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,9 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { ExchangeRatesSection } from './settings/ExchangeRatesSection';
+import { ExpenseCategoriesSection } from './settings/ExpenseCategoriesSection';
+import { PaymentSettingsSection } from './settings/PaymentSettingsSection';
 
 type Unit = 'minutes' | 'hours' | 'days';
 const UNIT_MINUTES: Record<Unit, number> = { minutes: 1, hours: 60, days: 1440 };
@@ -28,7 +32,7 @@ function splitTimeout(minutes: number): { amount: string; unit: Unit } {
   return { amount: String(minutes), unit: 'minutes' };
 }
 
-function SettingsForm({ settings }: { settings: SettingsResponse }) {
+function SettingsForm({ settings, readOnly }: { settings: SettingsResponse; readOnly: boolean }) {
   const { t } = useTranslation();
   const errorMessage = useErrorMessage();
   const queryClient = useQueryClient();
@@ -36,9 +40,15 @@ function SettingsForm({ settings }: { settings: SettingsResponse }) {
   const unitId = useId();
   const currenciesId = useId();
   const [companyName, setCompanyName] = useState(settings.companyName);
-  const [timeoutValue, setTimeoutValue] = useState(() => splitTimeout(settings.sessionIdleTimeoutMinutes));
+  const [timeoutValue, setTimeoutValue] = useState(() =>
+    splitTimeout(settings.sessionIdleTimeoutMinutes ?? 720),
+  );
   const [timeoutError, setTimeoutError] = useState<string | null>(null);
   const [prefix, setPrefix] = useState(settings.orderNumberPrefix);
+  // 005 FR-011: security settings come only to the Owner.
+  const security = settings.sessionIdleTimeoutMinutes !== undefined;
+  const [registrationOpen, setRegistrationOpen] = useState(settings.registrationOpen ?? true);
+  const registrationId = useId();
   const [prefixError, setPrefixError] = useState<string | null>(null);
   // "-2026-003": the part of the preview after the saved prefix; the typed prefix replaces it live.
   const numberSuffix = settings.nextOrderNumber.slice(settings.orderNumberPrefix.length);
@@ -53,16 +63,17 @@ function SettingsForm({ settings }: { settings: SettingsResponse }) {
 
   const server = fieldErrors(save.error);
   const otherError =
-    save.error && !(save.error instanceof ApiError && save.error.code === 'validation_failed') ? errorMessage(save.error) : null;
+    save.error && !(save.error instanceof ApiError && save.error.code === 'validation_failed')
+      ? errorMessage(save.error)
+      : null;
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     save.reset();
     const minutes = Number(timeoutValue.amount) * UNIT_MINUTES[timeoutValue.unit];
     if (
-      !Number.isInteger(minutes) ||
-      minutes < SESSION_IDLE_TIMEOUT_MINUTES.min ||
-      minutes > SESSION_IDLE_TIMEOUT_MINUTES.max
+      security &&
+      (!Number.isInteger(minutes) || minutes < SESSION_IDLE_TIMEOUT_MINUTES.min || minutes > SESSION_IDLE_TIMEOUT_MINUTES.max)
     ) {
       setTimeoutError(t('errors.timeout_out_of_range'));
       return;
@@ -74,11 +85,16 @@ function SettingsForm({ settings }: { settings: SettingsResponse }) {
       return;
     }
     setPrefixError(null);
-    save.mutate({ companyName: companyName.trim(), sessionIdleTimeoutMinutes: minutes, orderNumberPrefix: trimmedPrefix });
+    save.mutate({
+      companyName: companyName.trim(),
+      orderNumberPrefix: trimmedPrefix,
+      ...(security ? { sessionIdleTimeoutMinutes: minutes, registrationOpen } : {}),
+    });
   }
 
   return (
-    <form className="space-y-5" onSubmit={onSubmit} noValidate>
+    <form onSubmit={onSubmit} noValidate>
+      <fieldset disabled={readOnly} className="space-y-5">
       <Card className="space-y-4">
         <h2 className="text-lg font-semibold">{t('settings.company.title')}</h2>
         <Field
@@ -127,57 +143,77 @@ function SettingsForm({ settings }: { settings: SettingsResponse }) {
                     {t(`currency.${c.code}`)} · {c.symbol}
                   </span>
                 </span>
-                {c.code === settings.baseCurrency ? <Badge tone="primary">{t('settings.currencies.base')}</Badge> : null}
+                {c.code === settings.baseCurrency ? (
+                  <Badge tone="primary">{t('settings.currencies.base')}</Badge>
+                ) : null}
               </li>
             ))}
           </ul>
         </Card>
       </section>
 
-      <Card className="space-y-3">
-        <h2 className="text-lg font-semibold">{t('settings.session.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('settings.session.description')}</p>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <Label htmlFor={timeoutId}>{t('settings.session.timeout')}</Label>
-            <Input
-              id={timeoutId}
-              type="number"
-              inputMode="numeric"
-              min={1}
-              value={timeoutValue.amount}
-              onChange={(e) => setTimeoutValue((v) => ({ ...v, amount: e.target.value }))}
-              aria-invalid={timeoutError || server.sessionIdleTimeoutMinutes ? true : undefined}
-              dir="ltr"
+      {security ? (
+        <Card className="space-y-3">
+          <h2 className="text-lg font-semibold">{t('settings.session.title')}</h2>
+          <p className="text-sm text-muted-foreground">{t('settings.session.description')}</p>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Label htmlFor={timeoutId}>{t('settings.session.timeout')}</Label>
+              <Input
+                id={timeoutId}
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={timeoutValue.amount}
+                onChange={(e) => setTimeoutValue((v) => ({ ...v, amount: e.target.value }))}
+                aria-invalid={timeoutError || server.sessionIdleTimeoutMinutes ? true : undefined}
+                dir="ltr"
+              />
+            </div>
+            <div className="w-36">
+              <Label htmlFor={unitId}>{t('settings.session.unit')}</Label>
+              <Select
+                id={unitId}
+                value={timeoutValue.unit}
+                onChange={(e) => setTimeoutValue((v) => ({ ...v, unit: e.target.value as Unit }))}
+              >
+                {(Object.keys(UNIT_MINUTES) as Unit[]).map((u) => (
+                  <option key={u} value={u}>
+                    {t(`settings.session.units.${u}`)}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </div>
+          {timeoutError || server.sessionIdleTimeoutMinutes ? (
+            <p className="text-sm text-danger">{timeoutError ?? t('errors.timeout_out_of_range')}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{t('settings.session.range')}</p>
+          )}
+          <label htmlFor={registrationId} className="flex min-h-11 items-start gap-3 pt-2">
+            <input
+              id={registrationId}
+              type="checkbox"
+              className="mt-1 size-5"
+              checked={registrationOpen}
+              onChange={(e) => setRegistrationOpen(e.target.checked)}
             />
-          </div>
-          <div className="w-36">
-            <Label htmlFor={unitId}>{t('settings.session.unit')}</Label>
-            <Select
-              id={unitId}
-              value={timeoutValue.unit}
-              onChange={(e) => setTimeoutValue((v) => ({ ...v, unit: e.target.value as Unit }))}
-            >
-              {(Object.keys(UNIT_MINUTES) as Unit[]).map((u) => (
-                <option key={u} value={u}>
-                  {t(`settings.session.units.${u}`)}
-                </option>
-              ))}
-            </Select>
-          </div>
-        </div>
-        {timeoutError || server.sessionIdleTimeoutMinutes ? (
-          <p className="text-sm text-danger">{timeoutError ?? t('errors.timeout_out_of_range')}</p>
-        ) : (
-          <p className="text-xs text-muted-foreground">{t('settings.session.range')}</p>
-        )}
-      </Card>
+            <span>
+              <span className="block font-medium">{t('settings.registration.label')}</span>
+              <span className="block text-xs text-muted-foreground">{t('settings.registration.hint')}</span>
+            </span>
+          </label>
+        </Card>
+      ) : null}
 
       {otherError ? <Alert tone="danger">{otherError}</Alert> : null}
       {save.isSuccess ? <Alert tone="success">{t('settings.saved')}</Alert> : null}
-      <Button type="submit" size="lg" disabled={save.isPending}>
-        {save.isPending ? t('common.saving') : t('common.save')}
-      </Button>
+      {readOnly ? null : (
+        <Button type="submit" size="lg" disabled={save.isPending}>
+          {save.isPending ? t('common.saving') : t('common.save')}
+        </Button>
+      )}
+      </fieldset>
     </form>
   );
 }
@@ -186,16 +222,34 @@ function SettingsForm({ settings }: { settings: SettingsResponse }) {
 export function SettingsPage() {
   const { t } = useTranslation();
   const errorMessage = useErrorMessage();
+  const access = useAccess();
   const settings = useQuery({
     queryKey: queryKeys.settings,
     queryFn: () => api<SettingsResponse>('GET', '/api/settings'),
+    enabled: access.can('settings'),
   });
   return (
     <div className="space-y-5">
       <h1 className="text-2xl font-semibold">{t('settings.title')}</h1>
-      {settings.isPending ? <p className="text-sm text-muted-foreground">{t('common.loading')}</p> : null}
+      {access.can('settings') && settings.isPending ? <p className="text-sm text-muted-foreground">{t('common.loading')}</p> : null}
       {settings.error ? <Alert tone="danger">{errorMessage(settings.error)}</Alert> : null}
-      {settings.data ? <SettingsForm settings={settings.data} /> : null}
+      {settings.data ? <SettingsForm settings={settings.data} readOnly={!access.can('settings', 'edit')} /> : null}
+      {/* 005 FR-009: each section shows only with its module. */}
+      {access.can('rates') ? (
+        <fieldset disabled={!access.can('rates', 'edit')}>
+          <ExchangeRatesSection />
+        </fieldset>
+      ) : null}
+      {access.can('settings') && access.can('expenses') ? (
+        <fieldset disabled={!access.can('settings', 'edit')}>
+          <ExpenseCategoriesSection />
+        </fieldset>
+      ) : null}
+      {access.can('settings') && access.can('payments.direct') && access.can('payments.bank') ? (
+        <fieldset disabled={!access.can('settings', 'edit')}>
+          <PaymentSettingsSection />
+        </fieldset>
+      ) : null}
     </div>
   );
 }

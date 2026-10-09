@@ -30,6 +30,14 @@ export function createApp(deps: Deps) {
   const { config, db, clock, log } = deps;
   const app = new Hono<AppEnv>();
 
+  // Registered before secureHeaders so it runs after it: a route may tighten the CSP of its own response
+  // (003 R7: stored receipts are served with `sandbox`, which secureHeaders would otherwise overwrite).
+  app.use('*', async (c, next) => {
+    await next();
+    const csp = c.get('cspOverride');
+    if (csp) c.res.headers.set('Content-Security-Policy', csp);
+  });
+
   // Everything comes from this origin (D5): no CDNs, no Google, no third-party scripts.
   // 'unsafe-inline' styles are needed for React/Radix style attributes only.
   app.use(

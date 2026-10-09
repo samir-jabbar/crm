@@ -34,9 +34,10 @@ export interface Customer {
   company: string | null;
   city: string | null;
   country: string | null;
-  phone: string | null;
-  email: string | null;
-  notes: string | null;
+  /** Contact details: absent when hidden from the viewer (005 FR-025). */
+  phone?: string | null;
+  email?: string | null;
+  notes?: string | null;
   orderCount: number;
   createdAt: string;
   updatedAt: string;

@@ -1,15 +1,29 @@
-import { formatAmount, parseAmount, type ErrorCode, type ParsedOrderInput } from '@hanjing/shared';
+import { formatAmount, formatRate, parseAmount, parseRate, type ErrorCode, type ParsedOrderInput } from '@hanjing/shared';
+import { assignCreator } from '../users/assignments';
 import { and, asc, eq, getTableColumns, inArray, isNotNull, isNull, notInArray } from 'drizzle-orm';
 import { recordAudit } from '../audit/record';
 import type { Clock } from '../clock';
 import type { Executor } from '../db/client';
-import { companySettings, customers, orderItems, orders, suppliers, type OrderItemRow, type UserRow } from '../db/schema';
+import {
+  companySettings,
+  customers,
+  orderItems,
+  orders,
+  payments,
+  suppliers,
+  type OrderItemRow,
+  type OrderRow,
+  type UserRow,
+} from '../db/schema';
 import type { Deps } from '../deps';
 import { AppError } from '../lib/errors';
 import { newId } from '../lib/ids';
 import type { RequestCtx } from '../lib/requestContext';
 import type { OrderView } from '../policy/present';
 import { restore, softDelete } from '../softDelete';
+import { copyDefaultPlan, copyPlan } from '../payments/plan';
+import { orderPaymentSums } from '../payments/sums';
+import { orderFinancials } from './financials';
 import { chinaYear, nextOrderNumber } from './numbering';
 
 // ── Reading ────────────────────────────────────────────────────────────────
@@ -30,7 +44,12 @@ export function loadOrderView(db: Executor, id: string, options: { deleted?: boo
     .where(eq(orderItems.orderId, id))
     .orderBy(asc(orderItems.position))
     .all();
-  return { order, items };
+  return { order, items, financials: orderFinancials(db, order) };
+}
+
+/** 003 (D2): stored in micro-units for non-CNY orders; CNY orders always use 1 and store null. */
+function agreedRateMicro(input: Pick<ParsedOrderInput, 'currency' | 'agreedRate'>): number | null {
+  return input.currency === 'CNY' || !input.agreedRate ? null : parseRate(input.agreedRate);
 }
 
 // ── Validation shared by create, edit and duplicate ────────────────────────
@@ -115,12 +134,15 @@ export function createOrder(deps: Deps, input: ParsedOrderInput, actor: UserRow,
           destinationPort: input.destinationPort ?? null,
           expectedDeliveryDate: input.expectedDeliveryDate ?? null,
           budgetCnyMinor: input.budgetCny ? parseAmount(input.budgetCny) : null,
+          agreedRateMicro: agreedRateMicro(input),
           createdAt: now,
           updatedAt: now,
           createdBy: actor.id,
         })
         .run();
       if (input.items.length > 0) tx.insert(orderItems).values(input.items.map((item, i) => itemRow(id, item, i))).run();
+      copyDefaultPlan(tx, id); // 004 FR-013
+      assignCreator(tx, clock, actor, id); // 005 FR-020
       recordAudit(tx, clock, {
         actorUserId: actor.id,
         actorLabel: actor.username,
@@ -134,6 +156,7 @@ export function createOrder(deps: Deps, input: ParsedOrderInput, actor: UserRow,
           customerId: input.customerId,
           agreedPrice: formatAmount(parseAmount(input.agreedPrice)),
           currency: input.currency,
+          agreedRate: input.currency === 'CNY' || !input.agreedRate ? null : formatRate(parseRate(input.agreedRate)),
           itemCount: input.items.length,
         },
       });
@@ -174,6 +197,7 @@ function orderSnapshot(order: OrderView['order'], items: OrderItemRow[]) {
     destinationPort: order.destinationPort,
     expectedDeliveryDate: order.expectedDeliveryDate,
     budgetCny: order.budgetCnyMinor === null ? null : formatAmount(order.budgetCnyMinor),
+    agreedRate: order.agreedRateMicro === null ? null : formatRate(order.agreedRateMicro),
     items: items.map(itemSnapshot),
   };
 }
@@ -210,10 +234,22 @@ export function updateOrder(deps: Deps, id: string, input: ParsedOrderInput, act
       destinationPort: input.destinationPort ?? null,
       expectedDeliveryDate: input.expectedDeliveryDate ?? null,
       budgetCnyMinor: input.budgetCny ? parseAmount(input.budgetCny) : null,
+      agreedRateMicro: agreedRateMicro(input),
     };
     const beforeSnap = orderSnapshot(before.order, before.items);
     const afterSnap = orderSnapshot(nextOrder, nextItems);
     if (JSON.stringify(beforeSnap) === JSON.stringify(afterSnap)) return;
+
+    // 004 FR-023: remaining amounts are tracked in the order's currency, so it is fixed once payments exist.
+    if (nextOrder.currency !== before.order.currency) {
+      const paid = tx
+        .select({ id: payments.id })
+        .from(payments)
+        .where(and(eq(payments.orderId, id), isNull(payments.deletedAt)))
+        .get();
+      if (paid) throw new AppError(400, 'validation_failed', { fields: { currency: 'currency_locked' } });
+    }
+    const closing = checkClosing(tx, before.order, nextOrder.status, nextOrder.agreedPriceMinor, input.confirmOutstanding === true);
 
     tx.update(orders)
       .set({
@@ -227,6 +263,7 @@ export function updateOrder(deps: Deps, id: string, input: ParsedOrderInput, act
         destinationPort: nextOrder.destinationPort,
         expectedDeliveryDate: nextOrder.expectedDeliveryDate,
         budgetCnyMinor: nextOrder.budgetCnyMinor,
+        agreedRateMicro: nextOrder.agreedRateMicro,
         updatedAt: clock.now(),
       })
       .where(eq(orders.id, id))
@@ -249,19 +286,47 @@ export function updateOrder(deps: Deps, id: string, input: ParsedOrderInput, act
       targetId: id,
       ctx,
       before: beforeSnap,
-      after: afterSnap,
+      after: { ...afterSnap, ...closing },
     });
   });
   return loadOrderView(db, id)!;
 }
 
-/** Quick status change from the order header (FR-010). */
-export function setOrderStatus(deps: Deps, id: string, status: OrderView['order']['status'], actor: UserRow, ctx: RequestCtx): OrderView {
+/**
+ * 004 FR-022 (brief §6): an order cannot be set to Closed while money remains to collect, unless the user confirms.
+ * Returns what the audit entry should add ("133000.00 USD" still owed), or nothing when no confirmation was needed.
+ */
+function checkClosing(
+  tx: Executor,
+  order: Pick<OrderRow, 'id' | 'status' | 'currency'>,
+  nextStatus: OrderRow['status'],
+  agreedPriceMinor: number,
+  confirmOutstanding: boolean,
+): { outstanding: string } | null {
+  if (nextStatus !== 'closed' || order.status === 'closed') return null;
+  const received = orderPaymentSums(tx, order.id).received;
+  const agreed = BigInt(agreedPriceMinor);
+  if (received >= agreed) return null;
+  const remaining = formatAmount(agreed - received);
+  if (!confirmOutstanding) throw new AppError(409, 'balance_outstanding', { remaining, currency: order.currency });
+  return { outstanding: `${remaining} ${order.currency}` };
+}
+
+/** Quick status change from the order header (FR-010), with the 004 closing rule. */
+export function setOrderStatus(
+  deps: Deps,
+  id: string,
+  status: OrderView['order']['status'],
+  actor: UserRow,
+  ctx: RequestCtx,
+  options: { confirmOutstanding?: boolean } = {},
+): OrderView {
   const { db, clock } = deps;
   db.transaction((tx) => {
     const before = loadOrderView(tx, id);
     if (!before) notFoundOrder();
     if (before.order.status === status) return;
+    const closing = checkClosing(tx, before.order, status, before.order.agreedPriceMinor, options.confirmOutstanding === true);
     tx.update(orders).set({ status, updatedAt: clock.now() }).where(eq(orders.id, id)).run();
     recordAudit(tx, clock, {
       actorUserId: actor.id,
@@ -271,7 +336,7 @@ export function setOrderStatus(deps: Deps, id: string, status: OrderView['order'
       targetId: id,
       ctx,
       before: { status: before.order.status },
-      after: { status },
+      after: { status, ...closing },
     });
   });
   return loadOrderView(db, id)!;
@@ -281,7 +346,7 @@ export function setOrderStatus(deps: Deps, id: string, status: OrderView['order'
 
 /**
  * FR-016: copy an order into a new Draft with the next number. Copies the deal (customer, city, price, currency,
- * Incoterm, port, budget) and all item lines; never notes, the expected delivery date or history.
+ * agreed rate, Incoterm, port, budget) and all item lines; never notes, the expected delivery date or history.
  */
 export function duplicateOrder(deps: Deps, id: string, titleSuffix: string, actor: UserRow, ctx: RequestCtx): OrderView {
   const { db, clock } = deps;
@@ -309,6 +374,7 @@ export function duplicateOrder(deps: Deps, id: string, titleSuffix: string, acto
           destinationPort: source.order.destinationPort,
           expectedDeliveryDate: null,
           budgetCnyMinor: source.order.budgetCnyMinor,
+          agreedRateMicro: source.order.agreedRateMicro,
           createdAt: now,
           updatedAt: now,
           createdBy: actor.id,
@@ -319,6 +385,8 @@ export function duplicateOrder(deps: Deps, id: string, titleSuffix: string, acto
           .values(source.items.map(({ supplierName: _supplierName, ...item }) => ({ ...item, id: newId(), orderId: newOrderId })))
           .run();
       }
+      copyPlan(tx, source.order.id, newOrderId); // 004: the plan is part of the deal (payments are not copied)
+      assignCreator(tx, clock, actor, newOrderId); // 005 FR-020
       recordAudit(tx, clock, {
         actorUserId: actor.id,
         actorLabel: actor.username,

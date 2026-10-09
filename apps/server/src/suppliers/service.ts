@@ -5,7 +5,7 @@ import type { z } from 'zod';
 import { recordAudit } from '../audit/record';
 import type { Clock } from '../clock';
 import type { Executor } from '../db/client';
-import { suppliers, type SupplierRow, type UserRow } from '../db/schema';
+import { expenses, suppliers, type SupplierRow, type UserRow } from '../db/schema';
 import { AppError, notFound } from '../lib/errors';
 import { newId } from '../lib/ids';
 import { decodeOffset, encodeOffset } from '../lib/offsetCursor';
@@ -102,9 +102,15 @@ export function updateSupplier(
 }
 
 /** Name-sorted list with normalized search over name, company, contact person and city (FR-006). */
-export function listSuppliers(db: Executor, query: AddressBookQuery): { items: SupplierWithCount[]; nextCursor: string | null } {
+export function listSuppliers(
+  db: Executor,
+  query: AddressBookQuery,
+  /** 005: the viewer's scope (FR-022). */
+  scope?: SQL,
+): { items: SupplierWithCount[]; nextCursor: string | null } {
   const offset = decodeOffset(query.cursor);
   const conditions: SQL[] = [query.deleted ? isNotNull(suppliers.deletedAt) : isNull(suppliers.deletedAt)];
+  if (scope) conditions.push(scope);
   if (query.q?.trim()) {
     const pattern = likePattern(query.q);
     conditions.push(
@@ -130,7 +136,14 @@ export function listSuppliers(db: Executor, query: AddressBookQuery): { items: S
 export function deleteSupplier(tx: Executor, clock: Clock, id: string, actor: UserRow, ctx: RequestCtx): void {
   const supplier = getSupplier(tx, id);
   if (!supplier) throw notFound();
-  if (supplier.orderCount > 0) throw new AppError(409, 'in_use', { count: supplier.orderCount });
+  // 003 FR-025: an expense paid to the supplier also keeps it in use (the supplier page still counts orders only).
+  const expenseCount = tx
+    .select({ n: sql<number>`count(*)` })
+    .from(expenses)
+    .where(and(eq(expenses.paidToSupplierId, id), isNull(expenses.deletedAt)))
+    .get()!.n;
+  const inUse = supplier.orderCount + expenseCount;
+  if (inUse > 0) throw new AppError(409, 'in_use', { count: inUse });
   softDelete(tx, clock, suppliers, 'supplier', id, actor, ctx);
 }
 

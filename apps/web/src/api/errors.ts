@@ -10,8 +10,17 @@ export function useErrorMessage() {
     (error: unknown): string | null => {
       if (!error) return null;
       if (error instanceof ApiError) {
+        // 005: a conflicting permission set names its rule.
+        if (error.code === 'permission_conflict' && error.details.reason) return t(`workers.conflict.${error.details.reason}`);
         const minutes = Math.max(1, Math.ceil((error.details.retryAfterSeconds ?? 60) / 60));
-        return t(`errors.${error.code}`, { minutes, count: error.details.count ?? 0 });
+        return t(`errors.${error.code}`, {
+          minutes,
+          count: error.details.count ?? 0,
+          remaining: error.details.remaining ?? '',
+          currency: error.details.currency ?? '',
+          // access_ended: YYYY-MM-DD shown as DD/MM/YYYY, with Western digits like every date.
+          date: error.details.date ? error.details.date.split('-').reverse().join('/') : '',
+        });
       }
       return t('errors.internal_error');
     },

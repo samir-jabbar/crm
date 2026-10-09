@@ -29,6 +29,8 @@ export const orders = sqliteTable(
     expectedDeliveryDate: text('expected_delivery_date'),
     /** Planned total cost in CNY (D7), integer minor units. */
     budgetCnyMinor: integer('budget_cny_minor'),
+    /** Agreed rate to CNY in micro-units (003 D2); required by the API for non-CNY orders, null for CNY. */
+    agreedRateMicro: integer('agreed_rate_micro'),
     ...auditColumns(),
     ...softDeleteColumns(),
   },
@@ -42,6 +44,7 @@ export const orders = sqliteTable(
     check('orders_incoterm_check', sql`incoterm IS NULL OR incoterm IN (${list(INCOTERMS)})`),
     check('orders_price_check', sql`agreed_price_minor BETWEEN 0 AND 100000000000000`),
     check('orders_budget_check', sql`budget_cny_minor IS NULL OR budget_cny_minor BETWEEN 0 AND 100000000000000`),
+    check('orders_agreed_rate_check', sql`agreed_rate_micro IS NULL OR agreed_rate_micro > 0`),
   ],
 );
 

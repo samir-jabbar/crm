@@ -77,7 +77,9 @@ export function useUpdateOrder(id: string) {
 export function useSetOrderStatus(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (status: OrderStatus) => api<Order>('PATCH', `/api/orders/${id}/status`, { status }),
+    /** `confirmOutstanding`: the user confirmed closing an order that is still owed money (004 FR-022). */
+    mutationFn: (change: OrderStatus | { status: OrderStatus; confirmOutstanding: true }) =>
+      api<Order>('PATCH', `/api/orders/${id}/status`, typeof change === 'string' ? { status: change } : change),
     onSuccess: () => invalidateOrderData(queryClient),
   });
 }

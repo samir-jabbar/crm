@@ -1,4 +1,5 @@
 import { likePattern, type AddressBookQuery } from '@hanjing/shared';
+import { selectCreatedCustomer } from '../users/assignments';
 import type { createCustomerRequestSchema, updateCustomerRequestSchema } from '@hanjing/shared';
 import { and, eq, getTableColumns, isNotNull, isNull, sql, type SQL } from 'drizzle-orm';
 import type { z } from 'zod';
@@ -72,6 +73,7 @@ export function createCustomer(tx: Executor, clock: Clock, input: CreateInput, a
     ctx,
     after: snapshot(row),
   });
+  selectCreatedCustomer(tx, actor, row.id); // 005 FR-020
   return { ...row, orderCount: 0 };
 }
 
@@ -111,16 +113,25 @@ export function updateCustomer(
 }
 
 /** Name-sorted list with normalized search over name, company, city and phone (FR-003). */
-export function listCustomers(db: Executor, query: AddressBookQuery): { items: CustomerWithCount[]; nextCursor: string | null } {
+export function listCustomers(
+  db: Executor,
+  query: AddressBookQuery,
+  /** 005: the viewer's scope (FR-022). */
+  scope?: SQL,
+  /** 005 FR-030: never match on a hidden value, so no phone search when contact details are hidden. */
+  options: { searchPhone?: boolean } = {},
+): { items: CustomerWithCount[]; nextCursor: string | null } {
   const offset = decodeOffset(query.cursor);
   const conditions: SQL[] = [query.deleted ? isNotNull(customers.deletedAt) : isNull(customers.deletedAt)];
+  if (scope) conditions.push(scope);
   if (query.q?.trim()) {
     const pattern = likePattern(query.q);
+    const phone = options.searchPhone === false ? sql`` : sql`or hj_norm(${customers.phone}) like ${pattern} escape '\\'`;
     conditions.push(
       sql`(hj_norm(${customers.name}) like ${pattern} escape '\\'
         or hj_norm(${customers.company}) like ${pattern} escape '\\'
         or hj_norm(${customers.city}) like ${pattern} escape '\\'
-        or hj_norm(${customers.phone}) like ${pattern} escape '\\')`,
+        ${phone})`,
     );
   }
   const rows = db

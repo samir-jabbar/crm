@@ -1,0 +1,1 @@
+ALTER TABLE `exchange_rates` ADD `latest` integer DEFAULT false NOT NULL;

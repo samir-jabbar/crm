@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { api } from '@/api/http';
 import { queryKeys, useMe } from '@/api/queries';
+import { useUsers } from '@/api/users';
 import { LanguageSwitcher, useAccountLanguage } from '@/components/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
+import { useAccess } from '@/lib/access';
 import { cn } from '@/lib/utils';
 
 /** Authenticated layout: header with company name, a thumb-friendly menu, and the page. */
@@ -18,6 +20,8 @@ export function AppShell() {
   useAccountLanguage();
   const isOwner = me.data?.user.role === 'owner';
   const companyName = me.data?.company.name.trim();
+  // 005 FR-003: the Owner sees how many registrations wait for approval.
+  const pending = useUsers({}, isOwner).data?.pendingCount ?? 0;
 
   const signOut = useMutation({
     mutationFn: () => api<void>('POST', '/api/auth/sign-out'),
@@ -28,18 +32,18 @@ export function AppShell() {
     },
   });
 
+  // 005 FR-012: the menu shows only what the user may use; Users and the audit log stay the Owner's.
+  const access = useAccess();
+  const link = (to: string, label: string, shown: boolean, end = false) => (shown ? [{ to, label, end }] : []);
   const links = [
-    { to: '/', label: t('nav.dashboard'), end: true },
-    { to: '/orders', label: t('nav.orders') },
-    { to: '/customers', label: t('nav.customers') },
-    { to: '/suppliers', label: t('nav.suppliers') },
-    { to: '/security', label: t('nav.security') },
-    ...(isOwner
-      ? [
-          { to: '/settings', label: t('nav.settings') },
-          { to: '/audit', label: t('nav.audit') },
-        ]
-      : []),
+    ...link('/', t('nav.dashboard'), true, true),
+    ...link('/orders', t('nav.orders'), access.reachesOrders),
+    ...link('/customers', t('nav.customers'), access.can('customers')),
+    ...link('/suppliers', t('nav.suppliers'), access.can('suppliers')),
+    ...link('/security', t('nav.security'), true),
+    ...link('/users', pending > 0 ? t('nav.usersPending', { count: pending }) : t('nav.users'), isOwner),
+    ...link('/settings', t('nav.settings'), access.can('settings') || access.can('rates')),
+    ...link('/audit', t('nav.audit'), isOwner),
   ];
 
   return (

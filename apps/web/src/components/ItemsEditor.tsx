@@ -2,6 +2,7 @@ import { isAmount, lineTotalMinor, parseAmount, formatAmount, type CurrencyCode 
 import { useTranslation } from 'react-i18next';
 import { AmountText } from '@/components/AmountText';
 import { SupplierPicker, type PickedEntity } from '@/components/AddressPicker';
+import { useAccess } from '@/lib/access';
 import { Field } from '@/components/Field';
 import { MoneyInput } from '@/components/MoneyInput';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,8 @@ export function ItemsEditor({
   errorFor: (path: string) => string | null;
 }) {
   const { t } = useTranslation();
+  // 005: suppliers are offered only to users with the Suppliers module.
+  const canPickSupplier = useAccess().can('suppliers');
   const update = (index: number, patch: Partial<ItemDraft>) =>
     onChange(items.map((item, i) => (i === index ? { ...item, ...patch } : item)));
   const move = (index: number, delta: number) => {
@@ -152,12 +155,14 @@ export function ItemsEditor({
                 className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base"
               />
             </div>
-            <SupplierPicker
-              label={t('orders.items.supplier')}
-              value={item.supplier}
-              onSelect={(supplier) => update(index, { supplier })}
-              error={err('supplierId')}
-            />
+            {canPickSupplier ? (
+              <SupplierPicker
+                label={t('orders.items.supplier')}
+                value={item.supplier}
+                onSelect={(supplier) => update(index, { supplier })}
+                error={err('supplierId')}
+              />
+            ) : null}
             <p className="flex justify-between border-t border-border pt-2 text-sm">
               <span className="text-muted-foreground">{t('orders.items.lineTotal')}</span>
               {total === null ? <span>—</span> : <AmountText value={formatAmount(total)} currency={currency} className="font-medium" />}

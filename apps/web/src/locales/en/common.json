@@ -28,7 +28,9 @@
     "signOut": "Sign out",
     "orders": "Orders",
     "customers": "Customers",
-    "suppliers": "Suppliers"
+    "suppliers": "Suppliers",
+    "users": "Users",
+    "usersPending": "Users ({{count}} waiting)"
   },
   "errors": {
     "unauthenticated": "Please sign in again.",
@@ -57,7 +59,7 @@
     "timeout_out_of_range": "Choose between 15 minutes and 7 days.",
     "unknown_field": "This field cannot be changed.",
     "invalid_value": "This value is not valid.",
-    "name_invalid": "Enter a name (up to 120 characters).",
+    "name_invalid": "Enter a name.",
     "text_too_long": "This text is too long.",
     "email_invalid": "Enter a valid email address.",
     "title_invalid": "Enter a title (up to 160 characters).",
@@ -76,7 +78,31 @@
     "prefix_invalid": "1 to 10 letters, digits or dashes.",
     "customer_name_exists": "A customer with this name already exists.",
     "in_use": "Still used by {{count}} order(s). It can't be deleted.",
-    "customer_deleted": "This order's customer is deleted. Restore the customer first."
+    "customer_deleted": "This order's customer is deleted. Restore the customer first.",
+    "category_invalid": "Choose a category.",
+    "rate_invalid": "Enter a rate above 0 with up to 6 decimals.",
+    "rate_required": "Enter the rate to CNY.",
+    "receipt_invalid": "This receipt cannot be used. Add it again.",
+    "file_too_large": "The file is larger than 10 MB.",
+    "file_type_invalid": "Only photos (JPEG, PNG, WebP, HEIC) and PDF files are accepted.",
+    "rates_unavailable": "Automatic rates are unavailable right now. Type the rate by hand.",
+    "balance_outstanding": "This order still has {{remaining}} {{currency}} to collect.",
+    "currency_locked": "The currency cannot change once payments are recorded.",
+    "plan_total_invalid": "The stages must total exactly 100%.",
+    "channel_invalid": "Choose a channel.",
+    "payment_type_invalid": "Choose a payment type.",
+    "bank_rate_incomplete": "Enter the bank's rate, bank, rate type and time together (not for CNY payments).",
+    "proof_invalid": "This proof cannot be used. Add it again.",
+    "account_pending": "Your account is waiting for the Owner's approval.",
+    "account_suspended": "Your access is suspended. Ask the Owner.",
+    "access_ended": "Your access ended on {{date}}.",
+    "registration_closed": "Registration is closed. Ask the Owner.",
+    "password_change_required": "Choose a new password to continue.",
+    "permission_conflict": "These permissions cannot work together.",
+    "purchase_hidden": "You can't record or change supplier purchases.",
+    "already_decided": "This registration was already approved or rejected.",
+    "scope_customers_required": "Choose at least one customer.",
+    "template_invalid": "Choose a role template."
   },
   "language": {
     "en": "English",
@@ -105,7 +131,9 @@
     "password": "Password",
     "submit": "Sign in",
     "submitting": "Signing in…",
-    "forgot": "Forgot your password? Ask the person who manages the server to reset it."
+    "forgot": "Forgot your password? Ask the person who manages the server to reset it.",
+    "newHere": "New to the team?",
+    "register": "Register"
   },
   "dashboard": {
     "welcome": "Welcome,",
@@ -182,7 +210,10 @@
         "invalid_credentials": "Wrong username or password",
         "account_blocked": "Too many failed attempts on this account",
         "ip_blocked": "Too many failed attempts from this network",
-        "account_inactive": "Account not active"
+        "account_inactive": "Account not active",
+        "account_pending": "Waiting for approval",
+        "account_suspended": "Account suspended",
+        "access_ended": "Access ended"
       }
     }
   },
@@ -210,7 +241,17 @@
       "username": "Username",
       "role": "Role",
       "deviceLabel": "Device",
-      "sessionsEnded": "Sessions ended"
+      "sessionsEnded": "Sessions ended",
+      "permissions": "Permissions",
+      "orderScope": "Order scope",
+      "ownEntriesOnly": "Own entries only",
+      "accessEndsOn": "Access ends on",
+      "customerIds": "Selected customers",
+      "templateId": "Template",
+      "userIds": "Assigned workers",
+      "registrationOpen": "Registration open",
+      "status": "Status",
+      "name": "Name"
     },
     "action": {
       "setup.owner_created": "Owner account created",
@@ -228,7 +269,21 @@
       "record.created": "Record created",
       "record.updated": "Record updated",
       "record.deleted": "Record deleted",
-      "record.restored": "Record restored"
+      "record.restored": "Record restored",
+      "user.registered": "Registered",
+      "user.approved": "Registration approved",
+      "user.rejected": "Registration rejected",
+      "user.access_changed": "Access changed",
+      "user.updated": "Account changed",
+      "user.suspended": "Account suspended",
+      "user.reactivated": "Account reactivated",
+      "user.deleted": "Account deleted",
+      "user.password_reset": "Password reset by the Owner",
+      "user.signed_out_everywhere": "Signed out everywhere by the Owner",
+      "template.created": "Role template created",
+      "template.updated": "Role template changed",
+      "template.deleted": "Role template deleted",
+      "order.assignees_changed": "Order assignment changed"
     }
   },
   "currency": {
@@ -267,6 +322,61 @@
       "prefix": "Prefix",
       "hint": "1 to 10 letters, digits or dashes. Applies to new orders only.",
       "next": "Next order number:"
+    },
+    "rates": {
+      "title": "Exchange rates",
+      "provider": "Rate provider",
+      "providerHelp": {
+        "currency_api": "Free, no key. Daily rates, also for past dates.",
+        "exchangerate_api_open": "Free, no key. Latest rates only; its attribution is shown with its rates.",
+        "manual": "No automatic rates: every rate is typed by hand."
+      },
+      "apiKey": "Access key",
+      "apiKeyHelp": "Only for providers that need one. It stays on the server and is never shown again.",
+      "apiKeySet": "A key is saved (ends with {{last4}}). Type a new one to replace it.",
+      "removeKey": "Remove key",
+      "autoFill": "Fill rates automatically (expenses and payments)",
+      "autoFillHelp": "On a new expense or payment, the rates are filled for its date. You can always change them.",
+      "save": "Save rate settings",
+      "lastFetch": "Last fetched:",
+      "never": "never",
+      "lastError": "The last attempt failed ({{date}}). Rates can still be typed by hand.",
+      "refresh": "Refresh rates"
+    },
+    "categories": {
+      "title": "Expense categories",
+      "description": "Default categories follow each user's language. Hidden categories are no longer offered but stay on existing expenses.",
+      "rename": "Rename",
+      "renameLabel": "Rename {{name}}",
+      "newName": "New name",
+      "hide": "Hide",
+      "show": "Show",
+      "hideLabel": "Hide {{name}}",
+      "showLabel": "Show {{name}}",
+      "hiddenTag": "hidden",
+      "add": "New category",
+      "addPlaceholder": "e.g. Spare parts",
+      "addButton": "Add category"
+    },
+    "payments": {
+      "title": "Payments",
+      "channelNames": "Channel names",
+      "channelNameHint": "Leave empty to use the default name in each language.",
+      "defaultPlan": "Default payment plan",
+      "defaultPlanHint": "Given to every new order. Each order's plan can then be changed on its own.",
+      "banks": "Chinese banks",
+      "banksHint": "Offered in the bank's rate of a payment. Removing a bank never changes past payments.",
+      "bankN": "Bank {{n}}",
+      "moveBankUp": "Move {{name}} up",
+      "moveBankDown": "Move {{name}} down",
+      "removeBank": "Remove {{name}}",
+      "remove": "Remove",
+      "addBank": "Add a bank",
+      "save": "Save payment settings"
+    },
+    "registration": {
+      "label": "New workers may register",
+      "hint": "When off, the Register link disappears from the sign-in screen and new registrations are refused."
     }
   },
   "comingSoon": {
@@ -361,7 +471,10 @@
       "budgetCny": "Budget (CNY)",
       "budgetHint": "Optional: the total cost you plan for this order.",
       "create": "Create order",
-      "save": "Save order"
+      "save": "Save order",
+      "agreedRate": "Agreed rate",
+      "agreedRateHint": "The rate agreed with the customer, used to compute profit in CNY.",
+      "agreedPriceInCny": "Agreed price in CNY:"
     },
     "items": {
       "title": "Equipment",
@@ -379,7 +492,8 @@
       "supplier": "Supplier",
       "lineTotal": "Line total",
       "add": "Add item",
-      "none": "No items yet."
+      "none": "No items yet.",
+      "readOnly": "Prices are not shown to you, so the item lines cannot be changed here."
     },
     "tabs": {
       "label": "Order sections",
@@ -424,6 +538,465 @@
     "delete": {
       "title": "Delete this order?",
       "body": "It disappears from lists and search. You can restore it from the deleted orders."
+    },
+    "financials": {
+      "title": "Costs and profit (CNY)",
+      "agreedPriceCny": "Agreed price",
+      "expenses": "Expenses",
+      "unpaid": "Unpaid expenses",
+      "profit": "Profit",
+      "margin": "Margin",
+      "budgetUsed": "Budget used",
+      "overBudget": "Over budget",
+      "setAgreedRate": "Set the agreed rate to see profit",
+      "received": "Received",
+      "remaining": "Remaining to collect",
+      "paid": "Paid:",
+      "fxGain": "Exchange gain",
+      "fxLoss": "Exchange loss"
+    },
+    "close": {
+      "title": "Close this order?",
+      "body": "{{amount}} is still to collect on this order.",
+      "confirm": "Close anyway"
+    },
+    "assignees": {
+      "title": "Assigned workers",
+      "none": "No worker is assigned to this order.",
+      "add": "Assign a worker",
+      "assign": "Assign",
+      "remove": "Unassign {{name}}"
     }
+  },
+  "expenseCategory": {
+    "equipment_purchase": "Equipment purchase",
+    "inland_transport_china": "Inland transport in China",
+    "port_loading": "Port and loading",
+    "sea_freight": "Sea freight",
+    "insurance": "Insurance",
+    "customs_clearance_china": "Customs clearance (China)",
+    "customs_duties_morocco": "Customs and duties (Morocco)",
+    "labor": "Labor",
+    "hotel_accommodation": "Hotel and accommodation",
+    "local_travel": "Local travel",
+    "commission": "Commission",
+    "bank_fees": "Bank fees",
+    "other": "Other"
+  },
+  "expenseStatus": {
+    "paid": "Paid",
+    "to_pay": "To pay"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "bank": "Bank",
+    "other": "Other"
+  },
+  "rateSource": {
+    "manual": "Manual",
+    "auto": "Automatic",
+    "auto_edited": "Automatic, then edited"
+  },
+  "expenses": {
+    "add": "Add expense",
+    "newTitle": "New expense",
+    "empty": "No expenses yet. Add the first cost of this order.",
+    "hasReceipt": "Has a receipt",
+    "backToOrder": "Back to the order",
+    "createdBy": "Created by {{user}} on {{date}}",
+    "updatedBy": "Last changed by {{user}} on {{date}}",
+    "totals": {
+      "grand": "Total expenses",
+      "unpaid": "Unpaid",
+      "byCategory": "By category",
+      "byPerson": "Advanced by",
+      "toReimburse": "to reimburse:"
+    },
+    "form": {
+      "name": "Name",
+      "nameHint": "e.g. Trucking Linyi to Qingdao port",
+      "category": "Category",
+      "chooseCategory": "Choose a category",
+      "amount": "Amount",
+      "currency": "Currency",
+      "rate": "Rate to CNY",
+      "cnyAmount": "Amount in CNY",
+      "date": "Date",
+      "receipt": "Receipt",
+      "status": "Status",
+      "dueDate": "Due date",
+      "paidTo": "Paid to",
+      "paidToSupplier": "Supplier",
+      "paidToName": "Name",
+      "paidToSupplierLabel": "Supplier",
+      "paidToNameLabel": "Who was paid",
+      "paidToNamePlaceholder": "e.g. Driver Li",
+      "paymentMethod": "Payment method",
+      "advancedBy": "Advanced by",
+      "advancedByHint": "Who paid with their own money, to reimburse later.",
+      "notes": "Notes",
+      "save": "Save expense",
+      "reimbursed": "Already reimbursed",
+      "advancedBySuggestions": "Names already used"
+    },
+    "receipt": {
+      "takePhoto": "Take photo",
+      "chooseFile": "Choose file",
+      "uploading": "Uploading… {{percent}}%",
+      "retry": "Try again",
+      "attached": "Receipt attached",
+      "remove": "Remove",
+      "preview": "Receipt",
+      "waitUpload": "Uploading the receipt…",
+      "none": "No receipt.",
+      "openPdf": "Download the PDF"
+    },
+    "editTitle": "Edit expense",
+    "showDeleted": "Show deleted expenses",
+    "deletedTitle": "Deleted expenses",
+    "noDeleted": "No deleted expenses.",
+    "actions": {
+      "markPaid": "Mark paid",
+      "markToPay": "Mark to pay",
+      "edit": "Edit",
+      "restore": "Restore",
+      "markReimbursed": "Mark reimbursed",
+      "markNotReimbursed": "Mark not reimbursed"
+    },
+    "delete": {
+      "title": "Delete this expense?",
+      "body": "It leaves the totals and the profit. You can restore it from the deleted expenses."
+    },
+    "reimbursed": "Reimbursed"
+  },
+  "rates": {
+    "fetch": "Fetch rate",
+    "fetching": "Fetching…",
+    "sourceAuto": "Automatic · {{date}} · {{provider}}",
+    "notExact": "No rate was published for that date: this is the latest rate, of {{date}}.",
+    "manualOnly": "Automatic rates are off: type the rate.",
+    "typoWarning": "This is far from the latest rate (1 {{currency}} = {{rate}} CNY). Check it before saving.",
+    "providers": {
+      "currency_api": "Currency API",
+      "exchangerate_api_open": "ExchangeRate-API (open access)",
+      "manual": "Manual only"
+    }
+  },
+  "reimbursements": {
+    "title": "To reimburse",
+    "description": "Money people advanced from their own pocket, still owed to them.",
+    "expenseCount": "expenses: {{count}}",
+    "back": "Back to the dashboard",
+    "personTitle": "To reimburse to",
+    "stillOwed": "Still owed",
+    "nothingOwed": "Nothing is owed to this person.",
+    "listLabel": "Expenses to reimburse",
+    "partial": "Covers only the orders and entries you can see."
+  },
+  "paymentChannel": {
+    "direct": "Direct payments",
+    "bank": "Bank payments (invoiced)"
+  },
+  "paymentType": {
+    "deposit": "Deposit",
+    "balance": "Balance",
+    "other": "Other"
+  },
+  "bankRateType": {
+    "buying": "Buying rate",
+    "selling": "Selling rate",
+    "other": "Other"
+  },
+  "payments": {
+    "add": "Add payment",
+    "addTo": "Add a payment to {{channel}}",
+    "empty": "No payments yet.",
+    "newTitle": "New payment",
+    "editTitle": "Edit payment",
+    "backToOrder": "Back to the order",
+    "showDeleted": "Show deleted payments",
+    "noDeleted": "No deleted payments.",
+    "deletedTitle": "Deleted payments",
+    "form": {
+      "channel": "Channel",
+      "type": "Type",
+      "amount": "Amount",
+      "currency": "Currency",
+      "date": "Date",
+      "reference": "Reference",
+      "referenceHint": "e.g. the transfer or receipt number",
+      "rates": "Exchange rates",
+      "rateTo": "{{currency}} to CNY",
+      "proof": "Proof",
+      "notes": "Notes",
+      "save": "Save payment"
+    },
+    "proof": {
+      "attached": "Proof attached",
+      "preview": "Proof",
+      "waitUpload": "Uploading the proof…",
+      "none": "No proof."
+    },
+    "bank": {
+      "add": "Add the bank's rate",
+      "title": "Bank conversion",
+      "rate": "Bank's rate",
+      "name": "Bank",
+      "chooseBank": "Choose a bank",
+      "otherBank": "Other…",
+      "typedName": "Bank name",
+      "rateType": "Rate type",
+      "at": "Date and time of the rate",
+      "remove": "Remove the bank's rate"
+    },
+    "results": {
+      "title": "Value of this payment",
+      "cny": "In CNY",
+      "usd": "In USD",
+      "mad": "In MAD",
+      "countsAs": "Counts as",
+      "manual": "typed by hand",
+      "countsAsTyped": "Counts as, in {{currency}}",
+      "useComputed": "Use the computed amount",
+      "editCountsAs": "Change what it counts as"
+    },
+    "compare": {
+      "title": "{{currency}}/CNY rates",
+      "market": "Market",
+      "bank": "Bank",
+      "customer": "Customer",
+      "received": "CNY actually received",
+      "gap": "Gap from the market",
+      "vsMarket": "{{percent}}% vs market",
+      "noMarket": "No market rate known for this date: the gap cannot be shown."
+    },
+    "warnings": {
+      "overpaid": "Payments exceed the agreed price by {{amount}}.",
+      "bankOverInvoice": "Bank payments exceed the invoice total by {{amount}}."
+    },
+    "summary": {
+      "title": "Received and remaining",
+      "agreedPrice": "Agreed price",
+      "received": "Received",
+      "remaining": "Remaining to collect",
+      "percentPaid": "Paid",
+      "overpaid": "Overpaid by",
+      "receivedIn": "Received in {{currency}}",
+      "averageRate": "Average {{currency}}/CNY rate obtained",
+      "agreedRate": "Agreed reference rate",
+      "fxGain": "Exchange gain",
+      "fxLoss": "Exchange loss"
+    },
+    "plan": {
+      "title": "Payment plan",
+      "edit": "Edit plan",
+      "dueBefore": "Due before: {{status}}",
+      "dueDate": "Due date:",
+      "stageN": "Stage {{n}}",
+      "percent": "Share of the price",
+      "dueBeforeLabel": "Due before",
+      "dueDateLabel": "Due date (optional)",
+      "removeStage": "Remove",
+      "addStage": "Add a stage",
+      "total": "Total:",
+      "save": "Save the plan",
+      "editTitle": "Payment plan"
+    },
+    "channel": {
+      "planned": "Planned",
+      "received": "Received",
+      "remaining": "Remaining",
+      "overPlan": "Over plan by"
+    },
+    "history": {
+      "title": "Payment history",
+      "date": "Date",
+      "channel": "Channel",
+      "amount": "Amount",
+      "source": "Rate source"
+    },
+    "actions": {
+      "edit": "Edit",
+      "restore": "Restore"
+    },
+    "delete": {
+      "title": "Delete this payment?",
+      "body": "It leaves the totals. You can restore it from the deleted payments."
+    },
+    "detail": {
+      "rateSource": "Rate source"
+    }
+  },
+  "access": {
+    "deniedTitle": "No access",
+    "deniedBody": "Your account doesn't give you access to this page. Ask the Owner if you need it.",
+    "backHome": "Back to the dashboard",
+    "yourEntries": "Your entries"
+  },
+  "workers": {
+    "module": {
+      "orders": "Orders",
+      "customers": "Customers",
+      "suppliers": "Suppliers",
+      "expenses": "Expenses",
+      "payments.direct": "Direct payments",
+      "payments.bank": "Bank payments",
+      "shipments": "Shipments",
+      "documents": "Documents",
+      "invoices": "Invoices",
+      "dashboard": "Dashboard and reports",
+      "advisor": "Advisor",
+      "rates": "Exchange rates",
+      "settings": "Settings"
+    },
+    "moduleLater": "Arrives in a later update",
+    "action": {
+      "none": "No access",
+      "view": "View",
+      "create": "Create",
+      "edit": "Edit",
+      "delete": "Delete",
+      "export": "Export"
+    },
+    "group": {
+      "sellingPrice": "Selling price, profit and margin",
+      "supplierPrices": "Supplier purchase prices",
+      "supplierIdentity": "Supplier identity",
+      "customerContacts": "Customer contact details",
+      "paymentAmounts": "Payment amounts and rates",
+      "bankDetails": "Bank details"
+    },
+    "groupHint": {
+      "sellingPrice": "Agreed price, item prices, budget, profit and margin. Also hides what remains to collect, % paid and planned amounts.",
+      "supplierPrices": "Amounts of equipment purchases and of expenses paid to a supplier. Also hides total expenses, profit and margin.",
+      "supplierIdentity": "Which supplier sold an item or was paid. Also removes the Suppliers list.",
+      "customerContacts": "Customer phone, email and notes.",
+      "paymentAmounts": "Payment amounts, rates and proofs. Also hides received, remaining, % paid, profit and margin.",
+      "bankDetails": "The bank named on a payment; later, the bank accounts on invoices."
+    },
+    "template": {
+      "logistics": "Logistics assistant",
+      "site_assistant": "Site/trip assistant",
+      "accountant": "Accountant",
+      "sales_assistant": "Sales assistant",
+      "read_only": "Read-only"
+    },
+    "status": {
+      "pending": "Waiting for approval",
+      "active": "Active",
+      "suspended": "Suspended",
+      "ended": "Access ended",
+      "deleted": "Deleted"
+    },
+    "scope": {
+      "all": "All orders",
+      "assigned": "Assigned orders only",
+      "customers": "Orders of selected customers"
+    },
+    "conflict": {
+      "orders_create_needs_prices": "Creating orders needs the selling price visible.",
+      "orders_create_needs_customers": "Creating orders needs Customers: View.",
+      "payments_write_needs_amounts": "Recording or editing payments needs payment amounts visible.",
+      "suppliers_need_identity": "The Suppliers module needs supplier identity visible."
+    }
+  },
+  "register": {
+    "title": "Register",
+    "intro": "Create your account. The Owner approves it before you can sign in.",
+    "confirm": "Repeat the password",
+    "mismatch": "The two passwords do not match.",
+    "submit": "Register",
+    "submitting": "Registering…",
+    "doneTitle": "Waiting for approval",
+    "doneBody": "Your account is created. The Owner will approve it; you can then sign in with your username and password.",
+    "toSignIn": "Go to sign in",
+    "haveAccount": "Already have an account? Sign in"
+  },
+  "users": {
+    "title": "Users",
+    "templatesLink": "Role templates",
+    "pendingTitle": "Waiting for approval",
+    "workersTitle": "Workers",
+    "empty": "No workers yet. New workers register from the sign-in screen.",
+    "registeredAt": "Registered",
+    "device": "Device",
+    "location": "Location",
+    "approve": "Approve",
+    "approveName": "Approve {{name}}",
+    "reject": "Reject",
+    "rejectTitle": "Reject {{name}}?",
+    "rejectBody": "This account will never be able to sign in. The username becomes free again.",
+    "chooseTemplate": "Choose a role template",
+    "adjustLater": "You can adjust this worker's permissions on their page at any time.",
+    "ownEntriesOnly": "own entries only",
+    "adjusted": "adjusted",
+    "startedFrom": "Started from: {{name}}",
+    "templateDeleted": "template deleted",
+    "lastSignIn": "Last sign-in {{date}}",
+    "neverSignedIn": "Never signed in",
+    "showDeleted": "Show deleted users",
+    "deletedTitle": "Deleted users",
+    "access": "Access",
+    "applyTemplate": "Start again from a template",
+    "apply": "Apply",
+    "saveAccess": "Save access",
+    "accessSaved": "Access saved. It applies from the worker's next action.",
+    "editor": {
+      "modules": "Modules and actions",
+      "hidden": "Hidden values",
+      "hiddenHint": "The worker never sees or receives these values, nor anything computed from them."
+    },
+    "scope": {
+      "title": "Which orders",
+      "customers": "Selected customers",
+      "addCustomer": "Add a customer",
+      "removeCustomer": "Remove {{name}}",
+      "ownEntries": "Only the expenses and payments they recorded themselves",
+      "ownEntriesHint": "Totals then cover their own entries only.",
+      "endsOn": "Access ends on (optional)",
+      "endsOnHint": "Access stops at the end of this day, China time. Leave empty for no end."
+    },
+    "templates": {
+      "title": "Role templates",
+      "new": "New template",
+      "hint": "A template fills in a worker's access when you approve them. Changing a template does not change workers already set up.",
+      "name": "Name",
+      "defaultNameHint": "Leave empty to keep the default name, \"{{name}}\", in every language.",
+      "deleteTitle": "Delete this template?",
+      "deleteBody": "Workers set up with it keep their access.",
+      "usedBy": "Workers using it: {{count}}"
+    },
+    "assigned": {
+      "title": "Assigned orders",
+      "notUsed": "These apply when the worker's scope is \"Assigned orders only\".",
+      "none": "No order is assigned yet.",
+      "add": "Find an order to assign",
+      "remove": "Unassign {{number}}",
+      "removeShort": "Unassign"
+    },
+    "account": {
+      "title": "Account",
+      "suspend": "Suspend",
+      "suspendTitle": "Suspend {{name}}?",
+      "suspendBody": "Their devices are signed out at once and they cannot sign in until you reactivate them. Their permissions are kept.",
+      "reactivate": "Reactivate",
+      "signOut": "Sign out everywhere",
+      "signOutTitle": "Sign {{name}} out everywhere?",
+      "signOutBody": "Every device of this worker must sign in again.",
+      "delete": "Delete worker",
+      "deleteTitle": "Delete {{name}} for good?",
+      "deleteBody": "They can never sign in again and their username is never reused. Their records keep their name. To stop access for a while, suspend them instead.",
+      "done": "Done.",
+      "temporaryPassword": "Temporary password",
+      "temporaryHint": "At least 10 characters. Give it to the worker: they choose their own at their next sign-in, and their devices are signed out now.",
+      "resetPassword": "Set temporary password",
+      "passwordReset": "Temporary password set. The worker's devices were signed out.",
+      "noSessions": "No device is signed in."
+    }
+  },
+  "changePassword": {
+    "title": "Choose your password",
+    "intro": "The Owner set a temporary password for you. Choose your own to continue.",
+    "temporary": "Temporary password"
   }
 }
