@@ -22,12 +22,14 @@ export function AmountText({
   signed = false,
   className,
 }: {
-  value: string;
+  /** Absent when the value is hidden from the viewer (005): nothing is shown. */
+  value: string | undefined;
   currency: CurrencyCode;
   signed?: boolean;
   className?: string;
 }) {
   const { i18n } = useTranslation();
+  if (value === undefined) return null;
   return (
     <bdi dir="ltr" className={cn('whitespace-nowrap tabular-nums', className)}>
       {formatMoney(value, currency, i18n.language, signed)}

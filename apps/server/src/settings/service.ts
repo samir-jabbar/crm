@@ -45,6 +45,7 @@ export function updateSettings(
   if (patch.sessionIdleTimeoutMinutes !== undefined)
     values.sessionIdleTimeoutMinutes = patch.sessionIdleTimeoutMinutes;
   if (patch.orderNumberPrefix !== undefined) values.orderNumberPrefix = patch.orderNumberPrefix;
+  if (patch.registrationOpen !== undefined) values.registrationOpen = patch.registrationOpen;
   if (Object.keys(values).length === 0) return before;
 
   const after = tx
@@ -65,11 +66,13 @@ export function updateSettings(
       companyName: before.companyName,
       sessionIdleTimeoutMinutes: before.sessionIdleTimeoutMinutes,
       orderNumberPrefix: before.orderNumberPrefix,
+      registrationOpen: before.registrationOpen,
     },
     after: {
       companyName: after.companyName,
       sessionIdleTimeoutMinutes: after.sessionIdleTimeoutMinutes,
       orderNumberPrefix: after.orderNumberPrefix,
+      registrationOpen: after.registrationOpen,
     },
   });
   return after;

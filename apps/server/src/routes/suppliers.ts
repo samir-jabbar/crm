@@ -4,7 +4,8 @@ import type { Deps } from '../deps';
 import type { AppEnv } from '../env';
 import { notFound } from '../lib/errors';
 import { parseWith, readJsonBody } from '../lib/validate';
-import { requirePermission } from '../policy/authorize';
+import { accessOf, requirePermission } from '../policy/authorize';
+import { supplierVisible, orderVisible, requireSupplierInScope } from '../policy/scope';
 import { presentOrderListItem, presentSupplier } from '../policy/present';
 import { route } from '../policy/route';
 import { createSupplier, deleteSupplier, getSupplier, listSuppliers, restoreSupplier, updateSupplier } from '../suppliers/service';
@@ -18,7 +19,7 @@ export function registerSupplierRoutes(app: Hono<AppEnv>, deps: Deps): void {
     const viewer = c.get('user')!;
     const query = parseWith(addressBookQuerySchema, c.req.query());
     if (query.deleted) requirePermission(viewer, 'suppliers', 'delete');
-    const page = listSuppliers(db, query);
+    const page = listSuppliers(db, query, supplierVisible(accessOf(viewer)));
     return c.json<Page<Supplier>>({ items: page.items.map((r) => presentSupplier(r, { viewer })), nextCursor: page.nextCursor });
   });
 
@@ -30,6 +31,7 @@ export function registerSupplierRoutes(app: Hono<AppEnv>, deps: Deps): void {
   });
 
   route(app, 'GET', '/api/suppliers/:id', { module: 'suppliers', action: 'view' }, (c) => {
+    requireSupplierInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     const deleted = c.req.query('deleted') === 'true';
     if (deleted) requirePermission(viewer, 'suppliers', 'delete');
@@ -39,6 +41,7 @@ export function registerSupplierRoutes(app: Hono<AppEnv>, deps: Deps): void {
   });
 
   route(app, 'PATCH', '/api/suppliers/:id', { module: 'suppliers', action: 'edit' }, async (c) => {
+    requireSupplierInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     const input = parseWith(updateSupplierRequestSchema, await readJsonBody(c));
     const row = db.transaction((tx) => updateSupplier(tx, clock, c.req.param('id') ?? '', input, viewer, c.get('reqCtx')));
@@ -46,20 +49,23 @@ export function registerSupplierRoutes(app: Hono<AppEnv>, deps: Deps): void {
   });
 
   route(app, 'GET', '/api/suppliers/:id/orders', { module: 'suppliers', action: 'view' }, (c) => {
+    requireSupplierInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     requirePermission(viewer, 'orders', 'view');
     const id = c.req.param('id') ?? '';
     if (!getSupplier(db, id)) throw notFound();
-    const items = ordersOfSupplier(db, id).map((row) => presentOrderListItem(row, { viewer }));
+    const items = ordersOfSupplier(db, id, orderVisible(accessOf(viewer))).map((row) => presentOrderListItem(row, { viewer }));
     return c.json<{ items: OrderListItem[] }>({ items });
   });
 
   route(app, 'DELETE', '/api/suppliers/:id', { module: 'suppliers', action: 'delete' }, (c) => {
+    requireSupplierInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     db.transaction((tx) => deleteSupplier(tx, clock, c.req.param('id') ?? '', c.get('user')!, c.get('reqCtx')));
     return c.body(null, 204);
   });
 
   route(app, 'POST', '/api/suppliers/:id/restore', { module: 'suppliers', action: 'delete' }, (c) => {
+    requireSupplierInScope(db, accessOf(c.get('user')!), c.req.param('id') ?? '');
     const viewer = c.get('user')!;
     const row = db.transaction((tx) => restoreSupplier(tx, clock, c.req.param('id') ?? '', viewer, c.get('reqCtx')));
     return c.json(presentSupplier(row, { viewer }));

@@ -1,14 +1,19 @@
 import {
+  convertToCnyMinor,
   CURRENCY_CODES,
   formatAmount,
   INCOTERMS,
   isAmount,
+  isRate,
   orderInputSchema,
   parseAmount,
+  parseRate,
   sumMinor,
   type CurrencyCode,
   type ErrorCode,
+  type ForeignCurrency,
   type Incoterm,
+  type RateSource,
   type Order,
   type OrderInput,
 } from '@hanjing/shared';
@@ -20,7 +25,9 @@ import { CustomerPicker, type PickedEntity } from '@/components/AddressPicker';
 import { AmountText } from '@/components/AmountText';
 import { Field } from '@/components/Field';
 import { draftLineTotalMinor, ItemsEditor, newItemDraft, type ItemDraft } from '@/components/ItemsEditor';
+import { useAccess } from '@/lib/access';
 import { MoneyInput } from '@/components/MoneyInput';
+import { AutoRateField } from '@/components/AutoRateField';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -36,6 +43,8 @@ export interface OrderDraft {
   deliveryCity: string;
   agreedPrice: string;
   currency: CurrencyCode;
+  /** 003 (D2): "1 unit = X CNY" agreed at the deal; only for non-CNY orders. */
+  agreedRate: string;
   incoterm: Incoterm | '';
   destinationPort: string;
   expectedDeliveryDate: string;
@@ -50,6 +59,7 @@ export function emptyOrderDraft(customer: PickedEntity | null = null): OrderDraf
     deliveryCity: customer?.city ?? '',
     agreedPrice: '',
     currency: 'USD',
+    agreedRate: '',
     incoterm: '',
     destinationPort: '',
     expectedDeliveryDate: '',
@@ -64,8 +74,9 @@ export function draftFromOrder(order: Order): OrderDraft {
     title: order.title,
     customer: { id: order.customer.id, name: order.customer.name },
     deliveryCity: order.deliveryCity ?? '',
-    agreedPrice: plain(order.agreedPrice),
+    agreedPrice: plain(order.agreedPrice ?? ''),
     currency: order.currency,
+    agreedRate: order.agreedRate ? order.agreedRate.replace(/\.?0+$/, '') : '',
     incoterm: order.incoterm ?? '',
     destinationPort: order.destinationPort ?? '',
     expectedDeliveryDate: order.expectedDeliveryDate ?? '',
@@ -77,10 +88,10 @@ export function draftFromOrder(order: Order): OrderDraft {
       brandModel: item.brandModel ?? '',
       year: item.year ? String(item.year) : '',
       quantity: String(item.quantity),
-      unitPrice: plain(item.unitPrice),
+      unitPrice: plain(item.unitPrice ?? ''),
       hsCode: item.hsCode ?? '',
       specs: item.specs ?? '',
-      supplier: item.supplier,
+      supplier: item.supplier ?? null,
     })),
   };
 }
@@ -92,6 +103,7 @@ export function draftToInput(draft: OrderDraft): OrderInput {
     deliveryCity: draft.deliveryCity,
     agreedPrice: draft.agreedPrice,
     currency: draft.currency,
+    agreedRate: draft.currency === 'CNY' ? null : draft.agreedRate || null,
     incoterm: draft.incoterm || null,
     destinationPort: draft.destinationPort,
     expectedDeliveryDate: draft.expectedDeliveryDate || null,
@@ -140,22 +152,38 @@ export function OrderForm({
   const errorMessage = useErrorMessage();
   const [draft, setDraft] = useState<OrderDraft>(initial);
   const [localErrors, setLocalErrors] = useState<Record<string, ErrorCode>>({});
+  // Only labels the field ("Automatic · date"); the order stores the rate, not where it came from.
+  const [agreedRateSource, setAgreedRateSource] = useState<RateSource>('manual');
   const serverErrors = fieldErrors(error);
   const errorFor = (path: string) => {
     const code = localErrors[path] ?? serverErrors[path];
     return code ? t(`errors.${code}`) : null;
   };
   const set = <K extends keyof OrderDraft>(key: K, value: OrderDraft[K]) => setDraft((d) => ({ ...d, [key]: value }));
+  // 005 FR-031: with prices hidden, the price fields and item lines are neither shown nor sent; the server keeps them.
+  const pricesHidden = useAccess().hidden('sellingPrice');
 
   const lineTotals = draft.items.map(draftLineTotalMinor);
   const itemsTotal = sumMinor(lineTotals.map((v) => v ?? 0));
   const difference = isAmount(draft.agreedPrice) ? parseAmount(draft.agreedPrice) - itemsTotal : null;
+  const agreedPriceCny =
+    draft.currency !== 'CNY' && isAmount(draft.agreedPrice) && isRate(draft.agreedRate)
+      ? formatAmount(convertToCnyMinor(parseAmount(draft.agreedPrice), parseRate(draft.agreedRate)))
+      : null;
   const otherError =
     error && !(error instanceof ApiError && error.code === 'validation_failed') ? errorMessage(error) : null;
 
   function submit(e: FormEvent) {
     e.preventDefault();
     const input = draftToInput(draft);
+    if (pricesHidden) {
+      const { agreedPrice: _p, agreedRate: _r, budgetCny: _b, items: _i, currency: _c, ...visible } = input;
+      const errors = validate({ ...visible, agreedPrice: '0', currency: 'CNY', agreedRate: null, budgetCny: null, items: [] });
+      setLocalErrors(errors);
+      // The server fills the hidden fields from the order before validating (research R11).
+      if (Object.keys(errors).length === 0) onSubmit(visible as OrderInput);
+      return;
+    }
     const errors = validate(input);
     setLocalErrors(errors);
     if (Object.keys(errors).length === 0) onSubmit(input);
@@ -195,6 +223,8 @@ export function OrderForm({
       </Card>
 
       <Card className="space-y-4">
+        {pricesHidden ? null : (
+        <>
         <div className="grid grid-cols-[1fr_7rem] gap-3">
           <div>
             <Label htmlFor="order-price">{t('orders.form.agreedPrice')}</Label>
@@ -217,7 +247,38 @@ export function OrderForm({
           </div>
         </div>
         {errorFor('agreedPrice') ? <p className="text-sm text-danger">{errorFor('agreedPrice')}</p> : null}
+        {errorFor('currency') ? <p className="text-sm text-danger">{errorFor('currency')}</p> : null}
         <p className="text-xs text-muted-foreground">{t('orders.form.agreedPriceHint')}</p>
+        {draft.currency !== 'CNY' ? (
+          <div className="space-y-1">
+            <AutoRateField
+              key={draft.currency}
+              id="order-agreed-rate"
+              label={t('orders.form.agreedRate')}
+              currency={draft.currency as ForeignCurrency}
+              value={draft.agreedRate}
+              source={agreedRateSource}
+              onChange={(v, source) => {
+                set('agreedRate', v);
+                setAgreedRateSource(source);
+                // Typing a rate answers "rate required": show the live CNY price instead of the old error.
+                setLocalErrors(({ agreedRate: _answered, ...rest }) => rest);
+              }}
+              error={errorFor('agreedRate')}
+            />
+            <p className="text-xs text-muted-foreground">
+              {agreedPriceCny ? (
+                <>
+                  {t('orders.form.agreedPriceInCny')} <AmountText value={agreedPriceCny} currency="CNY" />
+                </>
+              ) : (
+                t('orders.form.agreedRateHint')
+              )}
+            </p>
+          </div>
+        ) : null}
+        </>
+        )}
         <div>
           <Label htmlFor="order-incoterm">{t('orders.form.incoterm')}</Label>
           <Select id="order-incoterm" value={draft.incoterm} onChange={(e) => set('incoterm', e.target.value as Incoterm | '')}>
@@ -251,6 +312,7 @@ export function OrderForm({
           onChange={(e) => set('expectedDeliveryDate', e.target.value)}
           error={errorFor('expectedDeliveryDate')}
         />
+        {pricesHidden ? null : (
         <div>
           <Label htmlFor="order-budget">{t('orders.form.budgetCny')}</Label>
           <MoneyInput
@@ -261,13 +323,32 @@ export function OrderForm({
           />
           <p className="mt-1 text-xs text-muted-foreground">{errorFor('budgetCny') ?? t('orders.form.budgetHint')}</p>
         </div>
+        )}
       </Card>
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{t('orders.items.title')}</h2>
-        <ItemsEditor items={draft.items} currency={draft.currency} onChange={(items) => set('items', items)} errorFor={errorFor} />
+        {pricesHidden ? (
+          <>
+            <p className="text-sm text-muted-foreground">{t('orders.items.readOnly')}</p>
+            <ul className="space-y-2">
+              {draft.items.map((item) => (
+                <li key={item.key}>
+                  <Card className="text-sm" dir="auto">
+                    {item.productName}
+                    {item.brandModel ? <span className="text-muted-foreground"> · {item.brandModel}</span> : null}
+                    <span className="text-muted-foreground"> · × {item.quantity}</span>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <ItemsEditor items={draft.items} currency={draft.currency} onChange={(items) => set('items', items)} errorFor={errorFor} />
+        )}
       </section>
 
+      {pricesHidden ? null : (
       <Card className="space-y-1" aria-live="polite">
         <p className="flex justify-between">
           <span className="text-muted-foreground">{t('orders.itemsTotal')}</span>
@@ -283,6 +364,7 @@ export function OrderForm({
         </p>
         <p className="text-xs text-muted-foreground">{t('orders.differenceHint')}</p>
       </Card>
+      )}
 
       {Object.keys(localErrors).length > 0 || (error instanceof ApiError && error.code === 'validation_failed') ? (
         <Alert tone="danger">{t('errors.validation_failed')}</Alert>

@@ -27,7 +27,7 @@ test('customers: Arabic name, duplicate warning, search, and their orders', asyn
   await expect(page.getByRole('link', { name: new RegExp(tag) })).toHaveCount(2);
 
   // The customer page lists their orders.
-  await apiOrder(page, { title: `Order for ${tag}`, customerId, agreedPrice: '1000', currency: 'MAD' });
+  await apiOrder(page, { title: `Order for ${tag}`, customerId, agreedPrice: '1000', currency: 'MAD', agreedRate: '0.71' });
   await page.goto(`/customers/${customerId}`);
   await expect(page.getByRole('link', { name: new RegExp(`Order for ${tag}`) })).toBeVisible();
   await page.getByRole('link', { name: 'New order for this customer' }).click();

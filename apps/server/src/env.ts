@@ -7,5 +7,7 @@ export interface AppEnv {
     user: UserRow | null;
     session: SessionRow | null;
     reqCtx: RequestCtx;
+    /** A stricter Content-Security-Policy for this response (e.g. `sandbox` on receipts), applied after secureHeaders. */
+    cspOverride?: string;
   };
 }

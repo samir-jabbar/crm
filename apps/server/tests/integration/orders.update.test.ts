@@ -35,6 +35,7 @@ describe('edit order and change status', () => {
       customerId: order.customer.id,
       agreedPrice: '195000',
       currency: 'USD',
+      agreedRate: '7.1',
       incoterm: 'CIF',
       destinationPort: 'Casablanca',
       items: [
@@ -71,6 +72,7 @@ describe('edit order and change status', () => {
       customerId: two.customer.id,
       agreedPrice: '1',
       currency: 'USD',
+      agreedRate: '7.1',
       items: [{ id: stolenId, productName: 'Hijack', quantity: 1, unitPrice: '1' }],
     });
     expect(res.status).toBe(200);
@@ -88,6 +90,7 @@ describe('edit order and change status', () => {
       customerId: order.customer.id,
       agreedPrice: '190000',
       currency: 'USD',
+      agreedRate: '7.1',
       incoterm: 'CIF',
       destinationPort: 'Casablanca',
       items: order.items.map((i: any) => ({

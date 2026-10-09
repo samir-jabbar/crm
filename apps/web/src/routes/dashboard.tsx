@@ -4,6 +4,8 @@ import { Link } from 'react-router';
 import { useOrdersSummary } from '@/api/orders';
 import { useMe } from '@/api/queries';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
+import { useAccess } from '@/lib/access';
+import { ToReimburseBlock } from '@/routes/reimbursements';
 
 /** Open orders by status (FR-026), each linking to the filtered order list. */
 function OpenOrders() {
@@ -39,21 +41,21 @@ function OpenOrders() {
 export function DashboardPage() {
   const { t } = useTranslation();
   const me = useMe();
+  const access = useAccess();
   if (!me.data) return null;
   const { user, company } = me.data;
   const isOwner = user.role === 'owner';
 
+  // 005 FR-012: only what the user may use.
+  const card = (key: string, to: string, shown: boolean) =>
+    shown ? [{ to, title: t(`dashboard.cards.${key}.title`), description: t(`dashboard.cards.${key}.description`) }] : [];
   const cards = [
-    { to: '/orders', title: t('dashboard.cards.orders.title'), description: t('dashboard.cards.orders.description') },
-    { to: '/customers', title: t('dashboard.cards.customers.title'), description: t('dashboard.cards.customers.description') },
-    { to: '/suppliers', title: t('dashboard.cards.suppliers.title'), description: t('dashboard.cards.suppliers.description') },
-    { to: '/security', title: t('dashboard.cards.security.title'), description: t('dashboard.cards.security.description') },
-    ...(isOwner
-      ? [
-          { to: '/settings', title: t('dashboard.cards.settings.title'), description: t('dashboard.cards.settings.description') },
-          { to: '/audit', title: t('dashboard.cards.audit.title'), description: t('dashboard.cards.audit.description') },
-        ]
-      : []),
+    ...card('orders', '/orders', access.reachesOrders),
+    ...card('customers', '/customers', access.can('customers')),
+    ...card('suppliers', '/suppliers', access.can('suppliers')),
+    ...card('security', '/security', true),
+    ...card('settings', '/settings', access.can('settings') || access.can('rates')),
+    ...card('audit', '/audit', isOwner),
   ];
 
   return (
@@ -66,7 +68,8 @@ export function DashboardPage() {
           {company.name.trim() ? <bdi>{company.name}</bdi> : t('dashboard.noCompany')}
         </p>
       </div>
-      <OpenOrders />
+      {access.can('orders') ? <OpenOrders /> : null}
+      {access.can('dashboard') && access.can('expenses') ? <ToReimburseBlock /> : null}
       <ul className="grid gap-3 sm:grid-cols-2">
         {cards.map((card) => (
           <li key={card.to}>

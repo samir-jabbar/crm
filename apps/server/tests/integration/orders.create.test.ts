@@ -67,6 +67,7 @@ describe('create order', () => {
       customerId: 'nope',
       agreedPrice: '1',
       currency: 'USD',
+      agreedRate: '7.1',
     });
     expect(badCustomer.body.error.details.fields).toEqual({ customerId: 'customer_invalid' });
     const customer = await seedCustomer(owner);
@@ -75,6 +76,7 @@ describe('create order', () => {
       customerId: customer.id,
       agreedPrice: '1',
       currency: 'USD',
+      agreedRate: '7.1',
       items: [{ productName: 'A', quantity: 1, unitPrice: '1', supplierId: 'nope' }],
     });
     expect(badSupplier.body.error.details.fields).toEqual({ 'items.0.supplierId': 'supplier_invalid' });
@@ -89,6 +91,7 @@ describe('create order', () => {
       customerId: customer.id,
       agreedPrice: '1',
       currency: 'USD',
+      agreedRate: '7.1',
       items: [{ productName: 'A', quantity: 1, unitPrice: '1', year: 2030 }],
     });
     expect(res.body.error.details.fields).toEqual({ 'items.0.year': 'year_invalid' });

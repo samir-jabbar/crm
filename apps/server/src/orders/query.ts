@@ -23,9 +23,13 @@ function searchCondition(q: string): SQL {
   )`;
 }
 
-/** FR-014: newest first, filtered and searched, keyset-paginated. */
-export function listOrders(db: Executor, query: OrdersQuery): { items: OrderListRow[]; nextCursor: string | null } {
-  const conditions: (SQL | undefined)[] = [query.deleted ? isNotNull(orders.deletedAt) : isNull(orders.deletedAt)];
+/** FR-014: newest first, filtered and searched, keyset-paginated. `scope` limits it to the viewer's orders (005). */
+export function listOrders(
+  db: Executor,
+  query: OrdersQuery,
+  scope?: SQL,
+): { items: OrderListRow[]; nextCursor: string | null } {
+  const conditions: (SQL | undefined)[] = [query.deleted ? isNotNull(orders.deletedAt) : isNull(orders.deletedAt), scope];
   if (query.status?.length) conditions.push(inArray(orders.status, query.status));
   if (query.customerId) conditions.push(eq(orders.customerId, query.customerId));
   if (query.from) conditions.push(gte(orders.createdAt, Date.parse(query.from)));
@@ -48,18 +52,18 @@ export function listOrders(db: Executor, query: OrdersQuery): { items: OrderList
 }
 
 /** Non-deleted orders of a customer, newest first (FR-004). */
-export function ordersOfCustomer(db: Executor, customerId: string): OrderListRow[] {
+export function ordersOfCustomer(db: Executor, customerId: string, scope?: SQL): OrderListRow[] {
   return db
     .select(listColumns)
     .from(orders)
     .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(and(eq(orders.customerId, customerId), isNull(orders.deletedAt)))
+    .where(and(eq(orders.customerId, customerId), isNull(orders.deletedAt), scope))
     .orderBy(desc(orders.createdAt), desc(orders.id))
     .all();
 }
 
 /** Non-deleted orders with at least one item from a supplier (FR-007). */
-export function ordersOfSupplier(db: Executor, supplierId: string): OrderListRow[] {
+export function ordersOfSupplier(db: Executor, supplierId: string, scope?: SQL): OrderListRow[] {
   return db
     .select(listColumns)
     .from(orders)
@@ -68,6 +72,7 @@ export function ordersOfSupplier(db: Executor, supplierId: string): OrderListRow
       and(
         isNull(orders.deletedAt),
         sql`exists (select 1 from order_items i where i.order_id = ${orders.id} and i.supplier_id = ${supplierId})`,
+        scope,
       ),
     )
     .orderBy(desc(orders.createdAt), desc(orders.id))
@@ -75,11 +80,11 @@ export function ordersOfSupplier(db: Executor, supplierId: string): OrderListRow
 }
 
 /** FR-026: open (not delivered/closed/cancelled), non-deleted orders per status. */
-export function ordersSummary(db: Executor): { openByStatus: Partial<Record<OrderStatus, number>>; openTotal: number } {
+export function ordersSummary(db: Executor, scope?: SQL): { openByStatus: Partial<Record<OrderStatus, number>>; openTotal: number } {
   const rows = db
     .select({ status: orders.status, n: count() })
     .from(orders)
-    .where(and(isNull(orders.deletedAt), inArray(orders.status, OPEN_ORDER_STATUSES)))
+    .where(and(isNull(orders.deletedAt), inArray(orders.status, OPEN_ORDER_STATUSES), scope))
     .groupBy(orders.status)
     .all();
   const openByStatus: Partial<Record<OrderStatus, number>> = {};

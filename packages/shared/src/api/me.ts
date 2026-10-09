@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import type { Language, Role } from '../enums';
+import type { HiddenGroup, Language, OrderScope, Role } from '../enums';
+import type { PermissionSet } from '../permissions';
 import { displayNameSchema, languageSchema, passwordSchema } from '../validation';
 
 export interface MeUser {
@@ -8,10 +9,25 @@ export interface MeUser {
   displayName: string;
   role: Role;
   language: Language;
+  /** 005 FR-037: an Owner-set temporary password must be replaced before anything else. */
+  mustChangePassword: boolean;
+}
+
+/** 005: what the signed-in user may reach. The interface uses it for layout only; the server enforces it. */
+export interface MeAccess {
+  owner: boolean;
+  modules: PermissionSet['modules'];
+  hidden: HiddenGroup[];
+  orderScope: OrderScope;
+  ownEntriesOnly: boolean;
+  accessEndsOn: string | null;
+  /** An order-bound module without Orders View: the basic order view (FR-010). */
+  basicOrdersOnly: boolean;
 }
 
 export interface MeResponse {
   user: MeUser;
+  access: MeAccess;
   company: { name: string };
   session: { id: string; idleTimeoutMinutes: number };
 }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AMOUNT_PATTERN } from '../enums';
+import { AMOUNT_PATTERN, RATE_PATTERN } from '../enums';
 
 /**
  * Optional free-text field. `undefined` = not sent (leave unchanged on PATCH); `null` or "" = clear it.
@@ -26,6 +26,13 @@ export const nameSchema = z.string({ error: 'name_invalid' }).trim().min(1, 'nam
 
 /** Decimal amount string ("190000", "85000.5", "0.01"). See money.ts. */
 export const amountSchema = z.string({ error: 'amount_invalid' }).trim().regex(AMOUNT_PATTERN, 'amount_invalid');
+
+/** Rate to CNY ("7.1" = 1 unit is 7.1 CNY): up to 6 decimals, above 0 (003 research R2). */
+export const rateSchema = z
+  .string({ error: 'rate_invalid' })
+  .trim()
+  .regex(RATE_PATTERN, 'rate_invalid')
+  .refine((v) => /[1-9]/.test(v), 'rate_invalid');
 
 /** Calendar date `YYYY-MM-DD` (a date, not an instant). */
 export const calendarDateSchema = z

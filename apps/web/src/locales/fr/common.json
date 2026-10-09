@@ -28,7 +28,9 @@
     "signOut": "Se déconnecter",
     "orders": "Commandes",
     "customers": "Clients",
-    "suppliers": "Fournisseurs"
+    "suppliers": "Fournisseurs",
+    "users": "Utilisateurs",
+    "usersPending": "Utilisateurs ({{count}} en attente)"
   },
   "errors": {
     "unauthenticated": "Veuillez vous reconnecter.",
@@ -57,7 +59,7 @@
     "timeout_out_of_range": "Choisissez entre 15 minutes et 7 jours.",
     "unknown_field": "Ce champ ne peut pas être modifié.",
     "invalid_value": "Cette valeur n'est pas valide.",
-    "name_invalid": "Saisissez un nom (120 caractères maximum).",
+    "name_invalid": "Saisissez un nom.",
     "text_too_long": "Ce texte est trop long.",
     "email_invalid": "Saisissez une adresse e-mail valide.",
     "title_invalid": "Saisissez un titre (160 caractères maximum).",
@@ -76,7 +78,31 @@
     "prefix_invalid": "1 à 10 lettres, chiffres ou tirets.",
     "customer_name_exists": "Un client portant ce nom existe déjà.",
     "in_use": "Encore utilisé par {{count}} commande(s). Suppression impossible.",
-    "customer_deleted": "Le client de cette commande est supprimé. Restaurez d'abord le client."
+    "customer_deleted": "Le client de cette commande est supprimé. Restaurez d'abord le client.",
+    "category_invalid": "Choisissez une catégorie.",
+    "rate_invalid": "Saisissez un taux supérieur à 0, avec 6 décimales au plus.",
+    "rate_required": "Saisissez le taux en CNY.",
+    "receipt_invalid": "Ce justificatif ne peut pas être utilisé. Ajoutez-le à nouveau.",
+    "file_too_large": "Le fichier dépasse 10 Mo.",
+    "file_type_invalid": "Seules les photos (JPEG, PNG, WebP, HEIC) et les fichiers PDF sont acceptés.",
+    "rates_unavailable": "Les taux automatiques sont indisponibles pour le moment. Saisissez le taux à la main.",
+    "balance_outstanding": "Cette commande a encore {{remaining}} {{currency}} à encaisser.",
+    "currency_locked": "La devise ne peut plus changer une fois des paiements enregistrés.",
+    "plan_total_invalid": "Les étapes doivent totaliser exactement 100 %.",
+    "channel_invalid": "Choisissez un canal.",
+    "payment_type_invalid": "Choisissez un type de paiement.",
+    "bank_rate_incomplete": "Indiquez ensemble le taux de la banque, la banque, le type de taux et l'heure (pas pour un paiement en CNY).",
+    "proof_invalid": "Ce justificatif ne peut pas être utilisé. Ajoutez-le à nouveau.",
+    "account_pending": "Votre compte attend l'approbation du propriétaire.",
+    "account_suspended": "Votre accès est suspendu. Demandez au propriétaire.",
+    "access_ended": "Votre accès a pris fin le {{date}}.",
+    "registration_closed": "Les inscriptions sont fermées. Demandez au propriétaire.",
+    "password_change_required": "Choisissez un nouveau mot de passe pour continuer.",
+    "permission_conflict": "Ces permissions ne peuvent pas fonctionner ensemble.",
+    "purchase_hidden": "Vous ne pouvez pas saisir ni modifier les achats fournisseurs.",
+    "already_decided": "Cette inscription a déjà été approuvée ou refusée.",
+    "scope_customers_required": "Choisissez au moins un client.",
+    "template_invalid": "Choisissez un modèle de rôle."
   },
   "language": {
     "en": "English",
@@ -105,7 +131,9 @@
     "password": "Mot de passe",
     "submit": "Se connecter",
     "submitting": "Connexion…",
-    "forgot": "Mot de passe oublié ? Demandez à la personne qui gère le serveur de le réinitialiser."
+    "forgot": "Mot de passe oublié ? Demandez à la personne qui gère le serveur de le réinitialiser.",
+    "newHere": "Nouveau dans l'équipe ?",
+    "register": "S'inscrire"
   },
   "dashboard": {
     "welcome": "Bienvenue,",
@@ -182,7 +210,10 @@
         "invalid_credentials": "Nom d'utilisateur ou mot de passe incorrect",
         "account_blocked": "Trop de tentatives échouées sur ce compte",
         "ip_blocked": "Trop de tentatives échouées depuis ce réseau",
-        "account_inactive": "Compte inactif"
+        "account_inactive": "Compte inactif",
+        "account_pending": "En attente d'approbation",
+        "account_suspended": "Compte suspendu",
+        "access_ended": "Accès terminé"
       }
     }
   },
@@ -210,7 +241,17 @@
       "username": "Nom d'utilisateur",
       "role": "Rôle",
       "deviceLabel": "Appareil",
-      "sessionsEnded": "Sessions fermées"
+      "sessionsEnded": "Sessions fermées",
+      "permissions": "Permissions",
+      "orderScope": "Périmètre des commandes",
+      "ownEntriesOnly": "Ses propres saisies uniquement",
+      "accessEndsOn": "Fin de l'accès",
+      "customerIds": "Clients choisis",
+      "templateId": "Modèle",
+      "userIds": "Collaborateurs attribués",
+      "registrationOpen": "Inscriptions ouvertes",
+      "status": "Statut",
+      "name": "Nom"
     },
     "action": {
       "setup.owner_created": "Compte propriétaire créé",
@@ -228,7 +269,21 @@
       "record.created": "Enregistrement créé",
       "record.updated": "Enregistrement modifié",
       "record.deleted": "Enregistrement supprimé",
-      "record.restored": "Enregistrement restauré"
+      "record.restored": "Enregistrement restauré",
+      "user.registered": "Inscription",
+      "user.approved": "Inscription approuvée",
+      "user.rejected": "Inscription refusée",
+      "user.access_changed": "Accès modifié",
+      "user.updated": "Compte modifié",
+      "user.suspended": "Compte suspendu",
+      "user.reactivated": "Compte réactivé",
+      "user.deleted": "Compte supprimé",
+      "user.password_reset": "Mot de passe réinitialisé par le propriétaire",
+      "user.signed_out_everywhere": "Déconnecté partout par le propriétaire",
+      "template.created": "Modèle de rôle créé",
+      "template.updated": "Modèle de rôle modifié",
+      "template.deleted": "Modèle de rôle supprimé",
+      "order.assignees_changed": "Attribution de commande modifiée"
     }
   },
   "currency": {
@@ -267,6 +322,61 @@
       "prefix": "Préfixe",
       "hint": "1 à 10 lettres, chiffres ou tirets. S'applique aux nouvelles commandes seulement.",
       "next": "Prochain numéro de commande :"
+    },
+    "rates": {
+      "title": "Taux de change",
+      "provider": "Fournisseur de taux",
+      "providerHelp": {
+        "currency_api": "Gratuit, sans clé. Taux quotidiens, y compris pour les dates passées.",
+        "exchangerate_api_open": "Gratuit, sans clé. Derniers taux uniquement ; sa mention d'attribution s'affiche avec ses taux.",
+        "manual": "Pas de taux automatiques : chaque taux est saisi à la main."
+      },
+      "apiKey": "Clé d'accès",
+      "apiKeyHelp": "Seulement pour les fournisseurs qui en demandent une. Elle reste sur le serveur et n'est plus jamais affichée.",
+      "apiKeySet": "Une clé est enregistrée (se termine par {{last4}}). Saisissez-en une nouvelle pour la remplacer.",
+      "removeKey": "Supprimer la clé",
+      "autoFill": "Remplir les taux automatiquement (dépenses et paiements)",
+      "autoFillHelp": "Sur une nouvelle dépense ou un nouveau paiement, les taux sont remplis pour sa date. Vous pouvez toujours les modifier.",
+      "save": "Enregistrer les réglages de taux",
+      "lastFetch": "Dernière récupération :",
+      "never": "jamais",
+      "lastError": "La dernière tentative a échoué ({{date}}). Les taux peuvent toujours être saisis à la main.",
+      "refresh": "Actualiser les taux"
+    },
+    "categories": {
+      "title": "Catégories de dépenses",
+      "description": "Les catégories par défaut suivent la langue de chaque utilisateur. Les catégories masquées ne sont plus proposées mais restent sur les dépenses existantes.",
+      "rename": "Renommer",
+      "renameLabel": "Renommer {{name}}",
+      "newName": "Nouveau nom",
+      "hide": "Masquer",
+      "show": "Afficher",
+      "hideLabel": "Masquer {{name}}",
+      "showLabel": "Afficher {{name}}",
+      "hiddenTag": "masquée",
+      "add": "Nouvelle catégorie",
+      "addPlaceholder": "ex. Pièces détachées",
+      "addButton": "Ajouter la catégorie"
+    },
+    "payments": {
+      "title": "Paiements",
+      "channelNames": "Noms des canaux",
+      "channelNameHint": "Laissez vide pour utiliser le nom par défaut dans chaque langue.",
+      "defaultPlan": "Échéancier par défaut",
+      "defaultPlanHint": "Donné à chaque nouvelle commande. L'échéancier de chaque commande peut ensuite être modifié.",
+      "banks": "Banques chinoises",
+      "banksHint": "Proposées pour le taux de la banque d'un paiement. Retirer une banque ne modifie jamais les paiements passés.",
+      "bankN": "Banque {{n}}",
+      "moveBankUp": "Monter {{name}}",
+      "moveBankDown": "Descendre {{name}}",
+      "removeBank": "Retirer {{name}}",
+      "remove": "Retirer",
+      "addBank": "Ajouter une banque",
+      "save": "Enregistrer les réglages de paiement"
+    },
+    "registration": {
+      "label": "Les nouveaux collaborateurs peuvent s'inscrire",
+      "hint": "Désactivé, le lien d'inscription disparaît de l'écran de connexion et les nouvelles inscriptions sont refusées."
     }
   },
   "comingSoon": {
@@ -361,7 +471,10 @@
       "budgetCny": "Budget (CNY)",
       "budgetHint": "Facultatif : le coût total prévu pour cette commande.",
       "create": "Créer la commande",
-      "save": "Enregistrer la commande"
+      "save": "Enregistrer la commande",
+      "agreedRate": "Taux convenu",
+      "agreedRateHint": "Le taux convenu avec le client, utilisé pour calculer la marge en CNY.",
+      "agreedPriceInCny": "Prix convenu en CNY :"
     },
     "items": {
       "title": "Équipements",
@@ -379,7 +492,8 @@
       "supplier": "Fournisseur",
       "lineTotal": "Total de la ligne",
       "add": "Ajouter un article",
-      "none": "Aucun article pour l'instant."
+      "none": "Aucun article pour l'instant.",
+      "readOnly": "Les prix ne vous sont pas affichés : les lignes d’articles ne peuvent pas être modifiées ici."
     },
     "tabs": {
       "label": "Sections de la commande",
@@ -424,6 +538,465 @@
     "delete": {
       "title": "Supprimer cette commande ?",
       "body": "Elle disparaît des listes et de la recherche. Vous pourrez la restaurer depuis les commandes supprimées."
+    },
+    "financials": {
+      "title": "Coûts et bénéfice (CNY)",
+      "agreedPriceCny": "Prix convenu",
+      "expenses": "Dépenses",
+      "unpaid": "Dépenses non payées",
+      "profit": "Bénéfice",
+      "margin": "Marge",
+      "budgetUsed": "Budget utilisé",
+      "overBudget": "Budget dépassé",
+      "setAgreedRate": "Saisissez le taux convenu pour voir le bénéfice",
+      "received": "Reçu",
+      "remaining": "Reste à encaisser",
+      "paid": "Payé :",
+      "fxGain": "Gain de change",
+      "fxLoss": "Perte de change"
+    },
+    "close": {
+      "title": "Clôturer cette commande ?",
+      "body": "Il reste {{amount}} à encaisser sur cette commande.",
+      "confirm": "Clôturer quand même"
+    },
+    "assignees": {
+      "title": "Collaborateurs attribués",
+      "none": "Aucun collaborateur n'est attribué à cette commande.",
+      "add": "Attribuer un collaborateur",
+      "assign": "Attribuer",
+      "remove": "Retirer {{name}}"
     }
+  },
+  "expenseCategory": {
+    "equipment_purchase": "Achat d'équipement",
+    "inland_transport_china": "Transport intérieur en Chine",
+    "port_loading": "Port et chargement",
+    "sea_freight": "Fret maritime",
+    "insurance": "Assurance",
+    "customs_clearance_china": "Dédouanement (Chine)",
+    "customs_duties_morocco": "Douane et droits (Maroc)",
+    "labor": "Main-d'œuvre",
+    "hotel_accommodation": "Hôtel et hébergement",
+    "local_travel": "Déplacements locaux",
+    "commission": "Commission",
+    "bank_fees": "Frais bancaires",
+    "other": "Autre"
+  },
+  "expenseStatus": {
+    "paid": "Payée",
+    "to_pay": "À payer"
+  },
+  "paymentMethod": {
+    "cash": "Espèces",
+    "bank": "Banque",
+    "other": "Autre"
+  },
+  "rateSource": {
+    "manual": "Manuel",
+    "auto": "Automatique",
+    "auto_edited": "Automatique, puis modifié"
+  },
+  "expenses": {
+    "add": "Ajouter une dépense",
+    "newTitle": "Nouvelle dépense",
+    "empty": "Aucune dépense pour l'instant. Ajoutez le premier coût de cette commande.",
+    "hasReceipt": "Justificatif joint",
+    "backToOrder": "Retour à la commande",
+    "createdBy": "Créée par {{user}} le {{date}}",
+    "updatedBy": "Modifiée en dernier par {{user}} le {{date}}",
+    "totals": {
+      "grand": "Total des dépenses",
+      "unpaid": "Non payé",
+      "byCategory": "Par catégorie",
+      "byPerson": "Avancé par",
+      "toReimburse": "à rembourser :"
+    },
+    "form": {
+      "name": "Nom",
+      "nameHint": "ex. Camion Linyi – port de Qingdao",
+      "category": "Catégorie",
+      "chooseCategory": "Choisir une catégorie",
+      "amount": "Montant",
+      "currency": "Devise",
+      "rate": "Taux en CNY",
+      "cnyAmount": "Montant en CNY",
+      "date": "Date",
+      "receipt": "Justificatif",
+      "status": "Statut",
+      "dueDate": "Échéance",
+      "paidTo": "Payé à",
+      "paidToSupplier": "Fournisseur",
+      "paidToName": "Nom",
+      "paidToSupplierLabel": "Fournisseur",
+      "paidToNameLabel": "Qui a été payé",
+      "paidToNamePlaceholder": "ex. Chauffeur Li",
+      "paymentMethod": "Moyen de paiement",
+      "advancedBy": "Avancé par",
+      "advancedByHint": "Qui a payé de sa poche, pour le rembourser plus tard.",
+      "notes": "Notes",
+      "save": "Enregistrer la dépense",
+      "reimbursed": "Déjà remboursée",
+      "advancedBySuggestions": "Noms déjà utilisés"
+    },
+    "receipt": {
+      "takePhoto": "Prendre une photo",
+      "chooseFile": "Choisir un fichier",
+      "uploading": "Envoi… {{percent}} %",
+      "retry": "Réessayer",
+      "attached": "Justificatif joint",
+      "remove": "Retirer",
+      "preview": "Justificatif",
+      "waitUpload": "Envoi du justificatif…",
+      "none": "Aucun justificatif.",
+      "openPdf": "Télécharger le PDF"
+    },
+    "editTitle": "Modifier la dépense",
+    "showDeleted": "Afficher les dépenses supprimées",
+    "deletedTitle": "Dépenses supprimées",
+    "noDeleted": "Aucune dépense supprimée.",
+    "actions": {
+      "markPaid": "Marquer payée",
+      "markToPay": "Marquer à payer",
+      "edit": "Modifier",
+      "restore": "Restaurer",
+      "markReimbursed": "Marquer remboursée",
+      "markNotReimbursed": "Marquer non remboursée"
+    },
+    "delete": {
+      "title": "Supprimer cette dépense ?",
+      "body": "Elle sort des totaux et du bénéfice. Vous pouvez la restaurer depuis les dépenses supprimées."
+    },
+    "reimbursed": "Remboursée"
+  },
+  "rates": {
+    "fetch": "Obtenir le taux",
+    "fetching": "Recherche…",
+    "sourceAuto": "Automatique · {{date}} · {{provider}}",
+    "notExact": "Aucun taux publié pour cette date : voici le dernier taux, du {{date}}.",
+    "manualOnly": "Les taux automatiques sont désactivés : saisissez le taux.",
+    "typoWarning": "Ce taux est loin du dernier taux connu (1 {{currency}} = {{rate}} CNY). Vérifiez-le avant d'enregistrer.",
+    "providers": {
+      "currency_api": "Currency API",
+      "exchangerate_api_open": "ExchangeRate-API (accès libre)",
+      "manual": "Manuel uniquement"
+    }
+  },
+  "reimbursements": {
+    "title": "À rembourser",
+    "description": "L'argent avancé de leur poche, qui leur est encore dû.",
+    "expenseCount": "dépenses : {{count}}",
+    "back": "Retour au tableau de bord",
+    "personTitle": "À rembourser à",
+    "stillOwed": "Encore dû",
+    "nothingOwed": "Rien n'est dû à cette personne.",
+    "listLabel": "Dépenses à rembourser",
+    "partial": "Ne couvre que les commandes et saisies que vous voyez."
+  },
+  "paymentChannel": {
+    "direct": "Paiements directs",
+    "bank": "Paiements bancaires (facturés)"
+  },
+  "paymentType": {
+    "deposit": "Acompte",
+    "balance": "Solde",
+    "other": "Autre"
+  },
+  "bankRateType": {
+    "buying": "Cours acheteur",
+    "selling": "Cours vendeur",
+    "other": "Autre"
+  },
+  "payments": {
+    "add": "Ajouter un paiement",
+    "addTo": "Ajouter un paiement à {{channel}}",
+    "empty": "Aucun paiement pour l'instant.",
+    "newTitle": "Nouveau paiement",
+    "editTitle": "Modifier le paiement",
+    "backToOrder": "Retour à la commande",
+    "showDeleted": "Afficher les paiements supprimés",
+    "noDeleted": "Aucun paiement supprimé.",
+    "deletedTitle": "Paiements supprimés",
+    "form": {
+      "channel": "Canal",
+      "type": "Type",
+      "amount": "Montant",
+      "currency": "Devise",
+      "date": "Date",
+      "reference": "Référence",
+      "referenceHint": "ex. le numéro du virement ou du reçu",
+      "rates": "Taux de change",
+      "rateTo": "{{currency}} en CNY",
+      "proof": "Justificatif",
+      "notes": "Notes",
+      "save": "Enregistrer le paiement"
+    },
+    "proof": {
+      "attached": "Justificatif joint",
+      "preview": "Justificatif",
+      "waitUpload": "Envoi du justificatif…",
+      "none": "Aucun justificatif."
+    },
+    "bank": {
+      "add": "Ajouter le taux de la banque",
+      "title": "Conversion bancaire",
+      "rate": "Taux de la banque",
+      "name": "Banque",
+      "chooseBank": "Choisir une banque",
+      "otherBank": "Autre…",
+      "typedName": "Nom de la banque",
+      "rateType": "Type de taux",
+      "at": "Date et heure du taux",
+      "remove": "Retirer le taux de la banque"
+    },
+    "results": {
+      "title": "Valeur de ce paiement",
+      "cny": "En CNY",
+      "usd": "En USD",
+      "mad": "En MAD",
+      "countsAs": "Compte pour",
+      "manual": "saisi à la main",
+      "countsAsTyped": "Compte pour, en {{currency}}",
+      "useComputed": "Utiliser le montant calculé",
+      "editCountsAs": "Modifier ce qu'il compte"
+    },
+    "compare": {
+      "title": "Taux {{currency}}/CNY",
+      "market": "Marché",
+      "bank": "Banque",
+      "customer": "Client",
+      "received": "CNY réellement reçus",
+      "gap": "Écart avec le marché",
+      "vsMarket": "{{percent}} % vs marché",
+      "noMarket": "Aucun taux de marché connu pour cette date : l'écart ne peut pas être affiché."
+    },
+    "warnings": {
+      "overpaid": "Les paiements dépassent le prix convenu de {{amount}}.",
+      "bankOverInvoice": "Les paiements bancaires dépassent le total de la facture de {{amount}}."
+    },
+    "summary": {
+      "title": "Reçu et restant",
+      "agreedPrice": "Prix convenu",
+      "received": "Reçu",
+      "remaining": "Reste à encaisser",
+      "percentPaid": "Payé",
+      "overpaid": "Trop-perçu de",
+      "receivedIn": "Reçu en {{currency}}",
+      "averageRate": "Taux moyen {{currency}}/CNY obtenu",
+      "agreedRate": "Taux de référence convenu",
+      "fxGain": "Gain de change",
+      "fxLoss": "Perte de change"
+    },
+    "plan": {
+      "title": "Échéancier",
+      "edit": "Modifier l'échéancier",
+      "dueBefore": "À payer avant : {{status}}",
+      "dueDate": "Échéance :",
+      "stageN": "Étape {{n}}",
+      "percent": "Part du prix",
+      "dueBeforeLabel": "À payer avant",
+      "dueDateLabel": "Échéance (facultatif)",
+      "removeStage": "Retirer",
+      "addStage": "Ajouter une étape",
+      "total": "Total :",
+      "save": "Enregistrer l'échéancier",
+      "editTitle": "Échéancier"
+    },
+    "channel": {
+      "planned": "Prévu",
+      "received": "Reçu",
+      "remaining": "Restant",
+      "overPlan": "Au-delà du prévu de"
+    },
+    "history": {
+      "title": "Historique des paiements",
+      "date": "Date",
+      "channel": "Canal",
+      "amount": "Montant",
+      "source": "Source du taux"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "restore": "Restaurer"
+    },
+    "delete": {
+      "title": "Supprimer ce paiement ?",
+      "body": "Il sort des totaux. Vous pouvez le restaurer depuis les paiements supprimés."
+    },
+    "detail": {
+      "rateSource": "Source du taux"
+    }
+  },
+  "access": {
+    "deniedTitle": "Accès refusé",
+    "deniedBody": "Votre compte ne donne pas accès à cette page. Demandez au propriétaire si vous en avez besoin.",
+    "backHome": "Retour au tableau de bord",
+    "yourEntries": "Vos saisies"
+  },
+  "workers": {
+    "module": {
+      "orders": "Commandes",
+      "customers": "Clients",
+      "suppliers": "Fournisseurs",
+      "expenses": "Dépenses",
+      "payments.direct": "Paiements directs",
+      "payments.bank": "Paiements bancaires",
+      "shipments": "Expéditions",
+      "documents": "Documents",
+      "invoices": "Factures",
+      "dashboard": "Tableau de bord et rapports",
+      "advisor": "Conseiller",
+      "rates": "Taux de change",
+      "settings": "Paramètres"
+    },
+    "moduleLater": "Arrive dans une prochaine mise à jour",
+    "action": {
+      "none": "Aucun accès",
+      "view": "Voir",
+      "create": "Créer",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "export": "Exporter"
+    },
+    "group": {
+      "sellingPrice": "Prix de vente, bénéfice et marge",
+      "supplierPrices": "Prix d'achat fournisseurs",
+      "supplierIdentity": "Identité des fournisseurs",
+      "customerContacts": "Coordonnées des clients",
+      "paymentAmounts": "Montants et taux des paiements",
+      "bankDetails": "Coordonnées bancaires"
+    },
+    "groupHint": {
+      "sellingPrice": "Prix convenu, prix des articles, budget, bénéfice et marge. Masque aussi le reste à encaisser, le % payé et les montants prévus.",
+      "supplierPrices": "Montants des achats d'équipement et des dépenses payées à un fournisseur. Masque aussi le total des dépenses, le bénéfice et la marge.",
+      "supplierIdentity": "Quel fournisseur a vendu un article ou a été payé. Retire aussi la liste des fournisseurs.",
+      "customerContacts": "Téléphone, e-mail et notes des clients.",
+      "paymentAmounts": "Montants, taux et justificatifs des paiements. Masque aussi l'encaissé, le reste, le % payé, le bénéfice et la marge.",
+      "bankDetails": "La banque indiquée sur un paiement ; plus tard, les comptes bancaires des factures."
+    },
+    "template": {
+      "logistics": "Assistant logistique",
+      "site_assistant": "Assistant chantier/déplacement",
+      "accountant": "Comptable",
+      "sales_assistant": "Assistant commercial",
+      "read_only": "Lecture seule"
+    },
+    "status": {
+      "pending": "En attente d'approbation",
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "ended": "Accès terminé",
+      "deleted": "Supprimé"
+    },
+    "scope": {
+      "all": "Toutes les commandes",
+      "assigned": "Commandes attribuées uniquement",
+      "customers": "Commandes des clients choisis"
+    },
+    "conflict": {
+      "orders_create_needs_prices": "Créer des commandes nécessite de voir le prix de vente.",
+      "orders_create_needs_customers": "Créer des commandes nécessite Clients : Voir.",
+      "payments_write_needs_amounts": "Saisir ou modifier des paiements nécessite de voir leurs montants.",
+      "suppliers_need_identity": "Le module Fournisseurs nécessite de voir l'identité des fournisseurs."
+    }
+  },
+  "register": {
+    "title": "Inscription",
+    "intro": "Créez votre compte. Le propriétaire doit l'approuver avant que vous puissiez vous connecter.",
+    "confirm": "Répétez le mot de passe",
+    "mismatch": "Les deux mots de passe ne correspondent pas.",
+    "submit": "S'inscrire",
+    "submitting": "Inscription…",
+    "doneTitle": "En attente d'approbation",
+    "doneBody": "Votre compte est créé. Le propriétaire va l'approuver ; vous pourrez alors vous connecter avec votre nom d'utilisateur et votre mot de passe.",
+    "toSignIn": "Aller à la connexion",
+    "haveAccount": "Vous avez déjà un compte ? Connectez-vous"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "templatesLink": "Modèles de rôle",
+    "pendingTitle": "En attente d'approbation",
+    "workersTitle": "Collaborateurs",
+    "empty": "Aucun collaborateur pour l'instant. Les nouveaux s'inscrivent depuis l'écran de connexion.",
+    "registeredAt": "Inscrit le",
+    "device": "Appareil",
+    "location": "Lieu",
+    "approve": "Approuver",
+    "approveName": "Approuver {{name}}",
+    "reject": "Refuser",
+    "rejectTitle": "Refuser {{name}} ?",
+    "rejectBody": "Ce compte ne pourra jamais se connecter. Le nom d'utilisateur redevient disponible.",
+    "chooseTemplate": "Choisissez un modèle de rôle",
+    "adjustLater": "Vous pouvez ajuster les permissions de ce collaborateur sur sa page à tout moment.",
+    "ownEntriesOnly": "ses saisies uniquement",
+    "adjusted": "ajusté",
+    "startedFrom": "Basé sur : {{name}}",
+    "templateDeleted": "modèle supprimé",
+    "lastSignIn": "Dernière connexion {{date}}",
+    "neverSignedIn": "Jamais connecté",
+    "showDeleted": "Afficher les utilisateurs supprimés",
+    "deletedTitle": "Utilisateurs supprimés",
+    "access": "Accès",
+    "applyTemplate": "Repartir d'un modèle",
+    "apply": "Appliquer",
+    "saveAccess": "Enregistrer l'accès",
+    "accessSaved": "Accès enregistré. Il s'applique dès la prochaine action du collaborateur.",
+    "editor": {
+      "modules": "Modules et actions",
+      "hidden": "Valeurs masquées",
+      "hiddenHint": "Le collaborateur ne voit ni ne reçoit jamais ces valeurs, ni rien de ce qui en est calculé."
+    },
+    "scope": {
+      "title": "Quelles commandes",
+      "customers": "Clients choisis",
+      "addCustomer": "Ajouter un client",
+      "removeCustomer": "Retirer {{name}}",
+      "ownEntries": "Uniquement les dépenses et paiements qu'il a saisis lui-même",
+      "ownEntriesHint": "Les totaux ne couvrent alors que ses propres saisies.",
+      "endsOn": "Fin de l'accès (facultatif)",
+      "endsOnHint": "L'accès s'arrête à la fin de ce jour, heure de Chine. Laissez vide pour ne pas limiter."
+    },
+    "templates": {
+      "title": "Modèles de rôle",
+      "new": "Nouveau modèle",
+      "hint": "Un modèle remplit l'accès d'un collaborateur lors de son approbation. Modifier un modèle ne change pas les collaborateurs déjà configurés.",
+      "name": "Nom",
+      "defaultNameHint": "Laissez vide pour garder le nom par défaut, « {{name}} », dans chaque langue.",
+      "deleteTitle": "Supprimer ce modèle ?",
+      "deleteBody": "Les collaborateurs configurés avec ce modèle gardent leur accès.",
+      "usedBy": "Collaborateurs qui l'utilisent : {{count}}"
+    },
+    "assigned": {
+      "title": "Commandes attribuées",
+      "notUsed": "Elles s'appliquent quand le périmètre est « Commandes attribuées uniquement ».",
+      "none": "Aucune commande attribuée pour l'instant.",
+      "add": "Chercher une commande à attribuer",
+      "remove": "Retirer {{number}}",
+      "removeShort": "Retirer"
+    },
+    "account": {
+      "title": "Compte",
+      "suspend": "Suspendre",
+      "suspendTitle": "Suspendre {{name}} ?",
+      "suspendBody": "Ses appareils sont déconnectés tout de suite et il ne peut plus se connecter jusqu'à sa réactivation. Ses permissions sont conservées.",
+      "reactivate": "Réactiver",
+      "signOut": "Déconnecter partout",
+      "signOutTitle": "Déconnecter {{name}} partout ?",
+      "signOutBody": "Chaque appareil de ce collaborateur devra se reconnecter.",
+      "delete": "Supprimer le collaborateur",
+      "deleteTitle": "Supprimer {{name}} définitivement ?",
+      "deleteBody": "Il ne pourra plus jamais se connecter et son nom d'utilisateur ne sera jamais réutilisé. Ses saisies gardent son nom. Pour couper l'accès un temps, suspendez-le plutôt.",
+      "done": "C'est fait.",
+      "temporaryPassword": "Mot de passe temporaire",
+      "temporaryHint": "Au moins 10 caractères. Donnez-le au collaborateur : il choisira le sien à sa prochaine connexion, et ses appareils sont déconnectés maintenant.",
+      "resetPassword": "Définir le mot de passe temporaire",
+      "passwordReset": "Mot de passe temporaire défini. Les appareils du collaborateur ont été déconnectés.",
+      "noSessions": "Aucun appareil connecté."
+    }
+  },
+  "changePassword": {
+    "title": "Choisissez votre mot de passe",
+    "intro": "Le propriétaire vous a donné un mot de passe temporaire. Choisissez le vôtre pour continuer.",
+    "temporary": "Mot de passe temporaire"
   }
 }

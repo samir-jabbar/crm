@@ -17,11 +17,13 @@ export const consoleLogger: Logger = {
 
 export const silentLogger: Logger = { info: () => {}, warn: () => {}, error: () => {} };
 
-/** Everything a route or service needs, injected once in createApp (tests swap clock/db/log). */
+/** Everything a route or service needs, injected once in createApp (tests swap clock/db/log/http). */
 export interface Deps {
   db: DB;
   clock: Clock;
   config: Config;
   geo: GeoLookup;
   log: Logger;
+  /** Outbound HTTP (rate providers). Injected so tests never reach the network. */
+  http: typeof fetch;
 }

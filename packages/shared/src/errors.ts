@@ -1,3 +1,5 @@
+import type { CurrencyCode } from './enums';
+
 /** Every error code the API can return. The client translates codes; the server never sends sentences. */
 export const ERROR_CODES = [
   // generic
@@ -50,6 +52,33 @@ export const ERROR_CODES = [
   'customer_name_exists',
   'in_use',
   'customer_deleted',
+  // 003: expenses and exchange rates
+  'category_invalid',
+  'rate_invalid',
+  'rate_required',
+  'receipt_invalid',
+  'file_too_large',
+  'file_type_invalid',
+  'rates_unavailable',
+  // 004: payments and the order financial summary
+  'balance_outstanding',
+  'currency_locked',
+  'plan_total_invalid',
+  'channel_invalid',
+  'payment_type_invalid',
+  'bank_rate_incomplete',
+  'proof_invalid',
+  // 005: workers and permissions
+  'account_pending',
+  'account_suspended',
+  'access_ended',
+  'registration_closed',
+  'password_change_required',
+  'permission_conflict',
+  'purchase_hidden',
+  'already_decided',
+  'scope_customers_required',
+  'template_invalid',
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];
@@ -64,6 +93,13 @@ export interface ApiErrorBody {
       existingId?: string;
       /** in_use: how many records still use the one being deleted. */
       count?: number;
+      /** balance_outstanding: what remains to collect, in the order's currency. */
+      remaining?: string;
+      currency?: CurrencyCode;
+      /** access_ended: the last day of access (YYYY-MM-DD, China time). */
+      date?: string;
+      /** permission_conflict: which rule the permission set breaks. */
+      reason?: string;
     };
   };
 }

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useErrorMessage } from '@/api/errors';
 import { useAddOrderNote, useDeleteOrderNote, useOrderNotes } from '@/api/orders';
+import { useAccess } from '@/lib/access';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,6 +19,8 @@ export function NotesTab({ orderId }: { orderId: string }) {
   const remove = useDeleteOrderNote(orderId);
   const [body, setBody] = useState('');
   const [confirming, setConfirming] = useState<string | null>(null);
+  // Adding and deleting notes are part of editing the order (002 policy orders:edit).
+  const canEdit = useAccess().can('orders', 'edit');
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -29,6 +32,7 @@ export function NotesTab({ orderId }: { orderId: string }) {
 
   return (
     <div className="space-y-4">
+      {canEdit ? (
       <Card>
         <form className="space-y-3" onSubmit={onSubmit}>
           <Label htmlFor="new-note">{t('orders.notes.label')}</Label>
@@ -48,6 +52,7 @@ export function NotesTab({ orderId }: { orderId: string }) {
           </Button>
         </form>
       </Card>
+      ) : null}
 
       {notes.error ? <Alert tone="danger">{errorMessage(notes.error)}</Alert> : null}
       {notes.data && notes.data.items.length === 0 ? <p className="text-sm text-muted-foreground">{t('orders.notes.empty')}</p> : null}
@@ -62,9 +67,11 @@ export function NotesTab({ orderId }: { orderId: string }) {
                 <span>
                   <bdi>{note.author.label}</bdi> · {formatDateTime(note.createdAt, i18n.language)}
                 </span>
-                <Button variant="ghost" className="text-danger" onClick={() => setConfirming(note.id)}>
-                  {t('orders.notes.delete')}
-                </Button>
+                {canEdit ? (
+                  <Button variant="ghost" className="text-danger" onClick={() => setConfirming(note.id)}>
+                    {t('orders.notes.delete')}
+                  </Button>
+                ) : null}
               </div>
             </Card>
           </li>

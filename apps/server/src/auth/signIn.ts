@@ -9,6 +9,7 @@ import { recordSignInAttempt } from './attempts';
 import { verifyAgainstDummy, verifyPassword } from './password';
 import { createSession, type CreatedSession } from './sessions';
 import { checkThrottle } from './throttle';
+import { accessEnded } from '../policy/access';
 
 /**
  * Username + password sign-in (FR-006 – FR-011, D9). Every attempt is recorded for the history and the
@@ -51,15 +52,27 @@ export async function signIn(
   // Always run argon2, even for unknown usernames, so timing reveals nothing.
   const passwordOk = user ? await verifyPassword(user.passwordHash, input.password) : await verifyAgainstDummy(input.password);
 
-  if (!user || !passwordOk || user.status !== 'active') {
-    const reason: SignInReason = user && passwordOk ? 'account_inactive' : 'invalid_credentials';
+  // 005 FR-002, FR-023, FR-036: after a correct password, a worker who may not sign in learns why.
+  // A wrong password, an unknown name or a deleted account always gets the same answer (001 FR-010).
+  const refusal: { status: 401 | 403; reason: SignInReason; code: 'invalid_credentials' | 'account_pending' | 'account_suspended' | 'access_ended' } | null =
+    !user || !passwordOk || user.status === 'deleted'
+      ? { status: 401, reason: user && passwordOk ? 'account_inactive' : 'invalid_credentials', code: 'invalid_credentials' }
+      : user.status === 'pending'
+        ? { status: 403, reason: 'account_pending', code: 'account_pending' }
+        : user.status === 'suspended'
+          ? { status: 403, reason: 'account_suspended', code: 'account_suspended' }
+          : accessEnded(user, clock.now())
+            ? { status: 403, reason: 'access_ended', code: 'access_ended' }
+            : null;
+
+  if (refusal) {
     db.transaction((tx) => {
       recordSignInAttempt(tx, clock, {
         usernameInput: input.username,
         usernameNormalized,
         userId: user?.id ?? null,
         outcome: 'failure',
-        reason,
+        reason: refusal.reason,
         ctx,
       });
       recordAudit(tx, clock, {
@@ -71,27 +84,28 @@ export async function signIn(
         ctx,
       });
     });
-    throw new AppError(401, 'invalid_credentials');
+    throw new AppError(refusal.status, refusal.code, refusal.code === 'access_ended' ? { date: user!.accessEndsOn! } : undefined);
   }
+  const activeUser = user!;
 
   return db.transaction((tx) => {
-    const session = createSession(tx, clock, user.id, ctx);
+    const session = createSession(tx, clock, activeUser.id, ctx);
     recordSignInAttempt(tx, clock, {
       usernameInput: input.username,
       usernameNormalized,
-      userId: user.id,
+      userId: activeUser.id,
       outcome: 'success',
       reason: 'ok',
       ctx,
     });
     recordAudit(tx, clock, {
-      actorUserId: user.id,
-      actorLabel: user.username,
+      actorUserId: activeUser.id,
+      actorLabel: activeUser.username,
       action: 'auth.sign_in',
       targetType: 'session',
       targetId: session.id,
       ctx,
     });
-    return { user, session };
+    return { user: activeUser, session };
   });
 }

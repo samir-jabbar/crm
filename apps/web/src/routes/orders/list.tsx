@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { useErrorMessage } from '@/api/errors';
 import { useOrders, useRestoreOrder, type OrderFilters } from '@/api/orders';
+import { useAccess } from '@/lib/access';
 import { CustomerPicker, type PickedEntity } from '@/components/AddressPicker';
 import { AmountText } from '@/components/AmountText';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -45,6 +46,7 @@ export function OrdersListPage() {
   };
   const orders = useOrders(filters);
   const restore = useRestoreOrder();
+  const access = useAccess();
   const items = orders.data?.pages.flatMap((p) => p.items) ?? [];
   const activeFilters = statuses.length + (customer ? 1 : 0) + (from ? 1 : 0) + (to ? 1 : 0);
 
@@ -61,12 +63,14 @@ export function OrdersListPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{deleted ? t('orders.deletedTitle') : t('nav.orders')}</h1>
-        <Link
-          to="/orders/new"
-          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
-        >
-          {t('orders.newTitle')}
-        </Link>
+        {access.can('orders', 'create') ? (
+          <Link
+            to="/orders/new"
+            className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+          >
+            {t('orders.newTitle')}
+          </Link>
+        ) : null}
       </div>
 
       <Input
@@ -112,7 +116,9 @@ export function OrdersListPage() {
               })}
             </div>
           </fieldset>
-          <CustomerPicker label={t('orders.form.customer')} value={customer} onSelect={setCustomer} allowCreate={false} />
+          {access.can('customers') ? (
+            <CustomerPicker label={t('orders.form.customer')} value={customer} onSelect={setCustomer} allowCreate={false} />
+          ) : null}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="orders-from">{t('orders.list.from')}</Label>
@@ -123,10 +129,12 @@ export function OrdersListPage() {
               <Input id="orders-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} min={from || undefined} />
             </div>
           </div>
-          <label className="flex min-h-11 items-center gap-2 text-sm">
-            <input type="checkbox" className="size-4" checked={deleted} onChange={(e) => setDeleted(e.target.checked)} />
-            {t('orders.list.showDeleted')}
-          </label>
+          {access.can('orders', 'delete') ? (
+            <label className="flex min-h-11 items-center gap-2 text-sm">
+              <input type="checkbox" className="size-4" checked={deleted} onChange={(e) => setDeleted(e.target.checked)} />
+              {t('orders.list.showDeleted')}
+            </label>
+          ) : null}
         </Card>
       ) : null}
 
@@ -153,7 +161,9 @@ export function OrdersListPage() {
               </p>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <StatusBadge status={order.status} />
-                <AmountText value={order.agreedPrice} currency={order.currency} className="font-medium" />
+                {order.agreedPrice !== undefined ? (
+                  <AmountText value={order.agreedPrice} currency={order.currency} className="font-medium" />
+                ) : null}
               </div>
             </Card>
           );

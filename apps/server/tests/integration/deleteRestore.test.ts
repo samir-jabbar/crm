@@ -94,7 +94,7 @@ describe('delete and restore', () => {
     const owner = await ctx.createOwner();
     const customer = await seedCustomer(owner);
     await owner.delete(`/api/customers/${customer.id}`);
-    const res = await owner.post('/api/orders', { title: 'x', customerId: customer.id, agreedPrice: '1', currency: 'USD' });
+    const res = await owner.post('/api/orders', { title: 'x', customerId: customer.id, agreedPrice: '1', currency: 'USD', agreedRate: '7.1' });
     expect(res.body.error.details.fields).toEqual({ customerId: 'customer_invalid' });
   });
 });

@@ -15,6 +15,8 @@ const SENSITIVE_KEYS = new Set([
   'tokenHash',
   'setupCode',
   'setupCodeHash',
+  // 003: the exchange-rate access key (rates/service.ts audits only whether one is set).
+  'apiKey',
 ]);
 
 export interface AuditInput {

@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useLocation } from 'react-router';
+import type { Module, PolicyAction } from '@hanjing/shared';
+import { Link, Navigate, useLocation } from 'react-router';
 import { useMe, useSetupStatus } from '@/api/queries';
 import { useErrorMessage } from '@/api/errors';
 import { Button } from '@/components/ui/button';
+import { useAccess } from '@/lib/access';
 
 export function FullPageStatus({ children }: { children: ReactNode }) {
   return (
@@ -39,6 +41,8 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   if (error && !me.data) return <LoadError error={error} onRetry={() => void Promise.all([setup.refetch(), me.refetch()])} />;
   if (setup.data?.setupRequired) return <Navigate to="/setup" replace />;
   if (!me.data) return <Navigate to="/sign-in" replace state={{ from: location.pathname }} />;
+  // 005 FR-037: an Owner-set temporary password must be replaced before anything else.
+  if (me.data.user.mustChangePassword && location.pathname !== '/change-password') return <Navigate to="/change-password" replace />;
   return <>{children}</>;
 }
 
@@ -67,4 +71,39 @@ export function SetupOnly({ children }: { children: ReactNode }) {
   if (setup.error) return <LoadError error={setup.error} onRetry={() => void setup.refetch()} />;
   if (!setup.data.setupRequired) return <Navigate to="/sign-in" replace />;
   return <>{children}</>;
+}
+
+/** 005 FR-012: a screen the user may not use shows this, never data. */
+export function AccessDenied() {
+  const { t } = useTranslation();
+  return (
+    <section className="space-y-3 py-8 text-center">
+      <h1 className="text-xl font-semibold">{t('access.deniedTitle')}</h1>
+      <p className="text-muted-foreground">{t('access.deniedBody')}</p>
+      <Link to="/" className="inline-flex min-h-11 items-center text-primary underline-offset-2 hover:underline">
+        {t('access.backHome')}
+      </Link>
+    </section>
+  );
+}
+
+/** Shows the page only to users with `action` in `module` (005). `'orders'` + view also admits the basic order view. */
+export function RequireModule({
+  module,
+  action = 'view',
+  children,
+}: {
+  module: Module | 'payments';
+  action?: PolicyAction;
+  children: ReactNode;
+}) {
+  const access = useAccess();
+  const allowed = module === 'orders' && action === 'view' ? access.reachesOrders : access.can(module, action);
+  return allowed ? <>{children}</> : <AccessDenied />;
+}
+
+/** Shows the page to users with any of these modules (Settings opens to Settings or Exchange rates). */
+export function RequireAny({ modules, children }: { modules: Module[]; children: ReactNode }) {
+  const access = useAccess();
+  return modules.some((m) => access.can(m)) ? <>{children}</> : <AccessDenied />;
 }

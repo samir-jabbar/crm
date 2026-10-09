@@ -11,6 +11,7 @@ test('find an order, change its status, browse tabs and edit an item', async ({ 
     customerId: customer.id,
     agreedPrice: '190000',
     currency: 'USD',
+    agreedRate: '7.1',
     status: 'confirmed',
     items: [{ productName: 'Excavator', brandModel: `DX225-${tag}`, quantity: 2, unitPrice: '85000' }],
   });
@@ -36,8 +37,14 @@ test('find an order, change its status, browse tabs and edit an item', async ({ 
   await page.getByLabel('Status').selectOption('purchased');
   await expect(page.getByText('Purchased').first()).toBeVisible();
 
-  // Every tab fits a phone; unbuilt ones say "coming soon".
-  for (const name of ['Expenses', 'Payments', 'Shipment', 'Documents', 'Invoices', 'Reminders']) {
+  // Every tab fits a phone; unbuilt ones say "coming soon" (Expenses is built in 003, Payments in 004).
+  await page.getByRole('tab', { name: 'Expenses' }).click();
+  await expect(page.getByRole('link', { name: 'Add expense' })).toBeVisible();
+  await expectNoHorizontalScroll(page);
+  await page.getByRole('tab', { name: 'Payments' }).click();
+  await expect(page.getByLabel('Received and remaining')).toBeVisible();
+  await expectNoHorizontalScroll(page);
+  for (const name of ['Shipment', 'Documents', 'Invoices', 'Reminders']) {
     await page.getByRole('tab', { name }).click();
     await expect(page.getByText(/available in a coming update/i)).toBeVisible();
     await expectNoHorizontalScroll(page);
